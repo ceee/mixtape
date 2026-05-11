@@ -43,7 +43,7 @@ public class Number : MixtapeEntity
   /// <summary>
   /// Store current counters
   /// </summary>
-  public List<NumberCounter> Counters { get; set; } = new();
+  public List<NumberCounter> Counters { get; set; } = [];
 
   /// <summary>
   /// Post process the compiled number

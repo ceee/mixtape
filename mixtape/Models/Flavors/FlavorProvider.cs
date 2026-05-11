@@ -20,7 +20,7 @@ public class FlavorProvider
   [JsonIgnore]
   public Func<object> FlavorlessConstruct { get; set; }
 
-  public List<FlavorConfig> Flavors { get; set; } = new();
+  public List<FlavorConfig> Flavors { get; set; } = [];
 
   /// <summary>
   /// Flavor discriminator converter 

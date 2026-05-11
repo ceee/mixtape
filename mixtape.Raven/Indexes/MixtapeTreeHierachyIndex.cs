@@ -4,7 +4,7 @@ namespace Mixtape.Raven;
 
 public class MixtapeTreeHierarchyIndexResult : MixtapeIdEntity, ISupportsDbConventions
 {
-  public List<string> Path { get; set; } = new List<string>();
+  public List<string> Path { get; set; } = [];
 }
 
 public abstract class MixtapeTreeHierarchyIndex<T> : MixtapeIndex<T, MixtapeTreeHierarchyIndexResult> where T : MixtapeIdEntity, ISupportsTrees

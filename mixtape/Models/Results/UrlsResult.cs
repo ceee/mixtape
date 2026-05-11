@@ -24,7 +24,7 @@ public class UrlResult
 
 public class UrlsResult
 {
-  public string[] Urls { get; set; } = Array.Empty<string>();
+  public string[] Urls { get; set; } = [];
 
   public string Domain { get; set; }
 

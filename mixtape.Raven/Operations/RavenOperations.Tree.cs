@@ -25,10 +25,10 @@ public partial class RavenOperations : IRavenOperations
 
     if (result == null)
     {
-      return Array.Empty<T>();
+      return [];
     }
 
-    List<string> ids = result.Path ?? new();
+    List<string> ids = result.Path ?? [];
     ids.Add(id);
 
     return (await Session.LoadAsync<T>(ids)).Select(x => x.Value).ToArray();
@@ -162,7 +162,7 @@ public partial class RavenOperations : IRavenOperations
   /// </summary>
   async Task<List<T>> GetDescendantsAndSelf<T>(T model) where T : MixtapeIdEntity, ISupportsTrees, new()
   {
-    List<T> items = new() { model };
+    List<T> items = [model];
 
     async Task AddChildren(T parent)
     {

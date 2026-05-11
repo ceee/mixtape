@@ -108,7 +108,7 @@ public class QrCode
     Objects.RequireNonNull(data);
     Objects.RequireNonNull(ecl);
     var seg = QrSegment.MakeBytes(data);
-    return EncodeSegments(new List<QrSegment> { seg }, ecl);
+    return EncodeSegments([seg], ecl);
   }
 
   #endregion
@@ -1030,7 +1030,7 @@ public class QrCode
   {
     if (Version == 1)
     {
-      return new int[] { };
+      return [];
     }
 
     var numAlign = Version / 7 + 2;
@@ -1292,7 +1292,7 @@ public class QrCode
     public static readonly Ecc High = new Ecc(3, 2);
 
 
-    internal static readonly Ecc[] AllValues = { Low, Medium, Quartile, High };
+    internal static readonly Ecc[] AllValues = [Low, Medium, Quartile, High];
 
     /// <summary>
     /// Ordinal number of error correction level (in the range 0 to 3).

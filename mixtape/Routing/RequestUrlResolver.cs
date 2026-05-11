@@ -9,7 +9,7 @@ public class RequestUrlResolver : IRequestUrlResolver
 
   protected ILogger<RequestUrlResolver> Logger { get; }
 
-  static string[] Protocols = new[] { "http://", "https://", "ftp://", "ftps://", "sftp://", "udp://" };
+  static string[] Protocols = ["http://", "https://", "ftp://", "ftps://", "sftp://", "udp://"];
 
 
   public RequestUrlResolver(IHttpContextAccessor httpContextAccessor, ILogger<RequestUrlResolver> logger)

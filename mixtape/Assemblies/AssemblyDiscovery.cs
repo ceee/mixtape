@@ -26,7 +26,7 @@ public class AssemblyDiscovery : IAssemblyDiscovery
   /// <inheritdoc />
   public void Execute(IEnumerable<IAssemblyDiscoveryRule> rules)
   {
-    List<Assembly> assemblies = new List<Assembly>();
+    List<Assembly> assemblies = [];
     DependencyContext dependencyContext = DependencyContext.Load(Context.EntryAssembly);
 
     if (dependencyContext == null)

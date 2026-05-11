@@ -4,9 +4,9 @@ public static class NumberExtensions
 {
   static Dictionary<FileSizeNotation, string[]> FileSizeUnits = new()
   {
-    { FileSizeNotation.SI, new string[] { "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" } },
-    { FileSizeNotation.IEC, new string[] { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB" } },
-    { FileSizeNotation.JEDEC, new string[] { "B", "KB", "MB", "GB" } }
+    { FileSizeNotation.SI, ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"] },
+    { FileSizeNotation.IEC, ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"] },
+    { FileSizeNotation.JEDEC, ["B", "KB", "MB", "GB"] }
   };
 
   public static int Limit(this int input, int min, int max)

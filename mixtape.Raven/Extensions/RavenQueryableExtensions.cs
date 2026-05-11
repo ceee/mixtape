@@ -92,7 +92,7 @@ public static class RavenQueryableExtensions
 
     searchTerms = searchTerms.Trim();
 
-    string[] searchParts = searchTerms.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).Select(x =>
+    string[] searchParts = searchTerms.Split([" "], StringSplitOptions.RemoveEmptyEntries).Select(x =>
     {
       if (suffix != null)
       {
@@ -107,7 +107,7 @@ public static class RavenQueryableExtensions
 
     if (searchTerms.StartsWith('"') && searchTerms.EndsWith('"'))
     {
-      searchParts = new[] { searchTerms };
+      searchParts = [searchTerms];
     }
 
     return source.Search(fieldSelector, searchParts, @operator: @operator);

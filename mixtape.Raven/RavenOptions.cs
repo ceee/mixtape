@@ -32,7 +32,7 @@ public class RavenIndexesOptions : List<RavenIndexesOptions.Map>
   }
 
 
-  public RavenIndexModifiersOptions Modifiers { get; private set; } = new();
+  public RavenIndexModifiersOptions Modifiers { get; private set; } = [];
 
   public void Add<T>() where T : IMixtapeIndexDefinition, new()
   {

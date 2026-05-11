@@ -115,7 +115,7 @@ public class Numbers : INumbers
       return;
     }
 
-    number.Counters = new();
+    number.Counters = [];
     await Db.Update(number);
   }
 

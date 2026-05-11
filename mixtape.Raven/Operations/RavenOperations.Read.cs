@@ -46,7 +46,7 @@ public partial class RavenOperations : IRavenOperations
     ids = ids.Distinct().ToArray();
 
     Dictionary<string, T> models = await Session.LoadAsync<T>(ids);
-    List<T> result = new();
+    List<T> result = [];
 
     foreach (string id in ids)
     {
@@ -148,7 +148,7 @@ public partial class RavenOperations : IRavenOperations
   /// <inheritdoc />
   public virtual async Task<List<T>> LoadAll<T>() where T : MixtapeIdEntity, new()
   {
-    List<T> items = new();
+    List<T> items = [];
 
     await foreach (T item in Stream<T>(null))
     {

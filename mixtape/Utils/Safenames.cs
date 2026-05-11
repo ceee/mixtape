@@ -15,7 +15,7 @@ public class Safenames
 
   const char DOT = '.';
 
-  static char[] TICKS = new char[3] { '`', '\'', '´' };
+  static char[] TICKS = ['`', '\'', '´'];
 
 
   /// <summary>

@@ -18,8 +18,8 @@ public class ObjectTraverser
   /// </summary>
   public static List<Result<T>> Find<T>(object value) where T : class
   {
-    HashSet<object> exploredObjects = new HashSet<object>();
-    List<Result<T>> found = new List<Result<T>>();
+    HashSet<object> exploredObjects = [];
+    List<Result<T>> found = [];
 
     Find<T>(value, null, string.Empty, null, exploredObjects, found);
 
@@ -32,8 +32,8 @@ public class ObjectTraverser
   /// </summary>
   public static List<Result> Find(Type type, object value)
   {
-    HashSet<object> exploredObjects = new HashSet<object>();
-    List<Result> found = new List<Result>();
+    HashSet<object> exploredObjects = [];
+    List<Result> found = [];
 
     Find(type, value, null, string.Empty, null, exploredObjects, found);
 
@@ -46,8 +46,8 @@ public class ObjectTraverser
   /// </summary>
   public static List<Result<T>> FindAttribute<T>(object value) where T : Attribute
   {
-    HashSet<string> exploredObjects = new HashSet<string>();
-    List<Result<T>> found = new List<Result<T>>();
+    HashSet<string> exploredObjects = [];
+    List<Result<T>> found = [];
 
     FindAttribute<T>(value, null, string.Empty, null, exploredObjects, found);
 

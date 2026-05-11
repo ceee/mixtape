@@ -50,7 +50,7 @@ internal class MixtapeRavenModule : MixtapeModule
     IDocumentStore store = new DocumentStore()
     {
       Database = ravenOptions.Database,
-      Urls = new string[1] { ravenOptions.Url },
+      Urls = [ravenOptions.Url],
       Conventions =
       {
         AggressiveCache =

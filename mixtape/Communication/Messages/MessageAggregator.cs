@@ -5,7 +5,7 @@ namespace Mixtape.Communication;
 
 public class MessageAggregator : IMessageAggregator
 {
-  readonly ConcurrentBag<IMessageSubscription> Subscription = new ConcurrentBag<IMessageSubscription>();
+  readonly ConcurrentBag<IMessageSubscription> Subscription = [];
   readonly IServiceProvider ServiceProvider;
 
 

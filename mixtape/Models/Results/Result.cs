@@ -11,7 +11,7 @@ public class Result
   public bool IsSuccess { get; set; }
 
   [DataMember(Name = "errors")]
-  public List<ResultError> Errors { get; set; } = new();
+  public List<ResultError> Errors { get; set; } = [];
 
   public Result() { }
 

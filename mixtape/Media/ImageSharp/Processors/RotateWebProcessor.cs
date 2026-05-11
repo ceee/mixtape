@@ -18,7 +18,7 @@ public class RotateWebProcessor : IImageWebProcessor
   /// The reusable collection of commands.
   /// </summary>
   private static readonly IEnumerable<string> RotateCommands
-      = new[] { Rotate };
+      = [Rotate];
 
   /// <inheritdoc/>
   public IEnumerable<string> Commands { get; } = RotateCommands;

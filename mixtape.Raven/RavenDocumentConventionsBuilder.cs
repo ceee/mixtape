@@ -8,7 +8,7 @@ namespace Mixtape.Raven;
 
 public class RavenDocumentConventionsBuilder : IRavenDocumentConventionsBuilder
 {
-  protected HashSet<Type> PolymorphTypes { get; } = new();
+  protected HashSet<Type> PolymorphTypes { get; } = [];
 
   protected Type AcceptsMixtapeConventionsType { get; set; } = typeof(ISupportsDbConventions);
 

@@ -106,7 +106,7 @@ public static class QrSegmentAdvanced
   private static List<QrSegment> MakeSegmentsOptimally(int[] codePoints, int version)
   {
     if (codePoints.Length == 0)
-      return new List<QrSegment>();
+      return [];
     var charModes = ComputeCharacterModes(codePoints, version);
     return SplitIntoSegments(codePoints, charModes);
   }
@@ -120,7 +120,7 @@ public static class QrSegmentAdvanced
       throw new ArgumentOutOfRangeException(nameof(codePoints));
     }
 
-    Mode[] modeTypes = { Mode.Byte, Mode.Alphanumeric, Mode.Numeric, Mode.Kanji }; // Do not modify
+    Mode[] modeTypes = [Mode.Byte, Mode.Alphanumeric, Mode.Numeric, Mode.Kanji]; // Do not modify
     var numModes = modeTypes.Length;
 
     // Segment header sizes, measured in 1/6 bits

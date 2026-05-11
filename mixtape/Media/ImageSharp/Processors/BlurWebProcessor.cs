@@ -17,7 +17,7 @@ public class BlurWebProcessor : IImageWebProcessor
   /// <summary>
   /// The reusable collection of commands.
   /// </summary>
-  private static readonly IEnumerable<string> BlurCommands = new[] { Blur };
+  private static readonly IEnumerable<string> BlurCommands = [Blur];
 
   /// <inheritdoc/>
   public IEnumerable<string> Commands { get; } = BlurCommands;

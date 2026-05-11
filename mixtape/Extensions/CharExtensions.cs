@@ -4,20 +4,20 @@ public static class CharExtensions
 {
   private static Dictionary<char, char[]> accents { get; } = new Dictionary<char, char[]>()
   {
-    { 'ä', new char[2] { 'a', 'e' } },
-    { 'á', new char[1] { 'a' } },
-    { 'à', new char[1] { 'a' } },
-    { 'ó', new char[1] { 'o' } },
-    { 'ò', new char[1] { 'o' } },
-    { 'é', new char[1] { 'e' } },
-    { 'è', new char[1] { 'e' } },
-    { 'ú', new char[1] { 'u' } },
-    { 'ù', new char[1] { 'u' } },
-    { 'í', new char[1] { 'i' } },
-    { 'ì', new char[1] { 'i' } },
-    { 'ö', new char[2] { 'o', 'e' } },
-    { 'ü', new char[2] { 'u', 'e' } },
-    { 'ß', new char[2] { 's', 's' } },
+    { 'ä', ['a', 'e'] },
+    { 'á', ['a'] },
+    { 'à', ['a'] },
+    { 'ó', ['o'] },
+    { 'ò', ['o'] },
+    { 'é', ['e'] },
+    { 'è', ['e'] },
+    { 'ú', ['u'] },
+    { 'ù', ['u'] },
+    { 'í', ['i'] },
+    { 'ì', ['i'] },
+    { 'ö', ['o', 'e'] },
+    { 'ü', ['u', 'e'] },
+    { 'ß', ['s', 's'] },
     //{ '&', new char[1] { '+' } }
   };
 

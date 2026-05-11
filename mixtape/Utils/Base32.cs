@@ -44,7 +44,7 @@ public static class Base32
     input = input.TrimEnd('=').ToUpperInvariant();
     if (input.Length == 0)
     {
-      return new byte[0];
+      return [];
     }
 
     var output = new byte[input.Length * 5 / 8];

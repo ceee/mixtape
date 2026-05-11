@@ -78,7 +78,7 @@ public static class UserManagerExtensions
       return Result<string[]>.Success(recoveryCodes.ToArray());
     }
 
-    return Result<string[]>.Success(Array.Empty<string>());
+    return Result<string[]>.Success([]);
   }
 
 
