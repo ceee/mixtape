@@ -45,12 +45,12 @@ public abstract class MixtapeIdentityUser : MixtapeEntity
   /// <summary>
   /// The user's claims, for use in claims-based authentication.
   /// </summary>
-  public List<UserClaim> Claims { get; set; } = new();
+  public List<UserClaim> Claims { get; set; } = [];
 
   /// <summary>
   /// The roles (aliases) of the user
   /// </summary>
-  public List<string> RoleIds { get; set; } = new();
+  public List<string> RoleIds { get; set; } = [];
 
   /// <summary>
   /// Ability to implement ISupportsSoftDelete
@@ -99,10 +99,10 @@ public abstract class MixtapeIdentityUser : MixtapeEntity
   /// <summary>
   /// Store all external logins (Microsoft, Google, ...)
   /// </summary>
-  public List<UserExternalLogin> ExternalLogins { get; set; } = new();
+  public List<UserExternalLogin> ExternalLogins { get; set; } = [];
   
   /// <summary>
   /// Authenticator tokens
   /// </summary>
-  public List<UserToken> Tokens { get; set; } = new();
+  public List<UserToken> Tokens { get; set; } = [];
 }
