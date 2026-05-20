@@ -1,4 +1,5 @@
-﻿using Mixtape.Mails.Dispatchers.Postmark;
+﻿using Mixtape.Mails.Dispatchers.Lettermint;
+using Mixtape.Mails.Dispatchers.Postmark;
 using Mixtape.Mails.Dispatchers.Scaleway;
 
 namespace Mixtape.Mails;
@@ -24,6 +25,8 @@ public class MailOptions
   public PostmarkOptions Postmark { get; set; }
 
   public ScalewayOptions Scaleway { get; set; }
+
+  public LettermintOptions Lettermint { get; set; }
 
   public Func<Mail, string> BuildViewPath { get; set; }
 }

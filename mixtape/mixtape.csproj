@@ -18,7 +18,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="10.0.7" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
         <PackageReference Include="Postmark" Version="5.3.0" />
-        <PackageReference Include="PowCapServer.Core" Version="2.0.2" />
+        <PackageReference Include="PowCapServer.Core" Version="2.0.1" />
         <PackageReference Include="Seq.Extensions.Logging" Version="9.0.0" />
         <PackageReference Include="SixLabors.ImageSharp.Web" Version="3.2.0" />
     </ItemGroup>
