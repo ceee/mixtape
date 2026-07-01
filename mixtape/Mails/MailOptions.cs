@@ -1,5 +1,4 @@
 ﻿using Mixtape.Mails.Dispatchers.Lettermint;
-using Mixtape.Mails.Dispatchers.Postmark;
 using Mixtape.Mails.Dispatchers.Scaleway;
 
 namespace Mixtape.Mails;
@@ -21,8 +20,6 @@ public class MailOptions
   public string SenderEmail { get; set; }
 
   public string SenderName { get; set; }
-
-  public PostmarkOptions Postmark { get; set; }
 
   public ScalewayOptions Scaleway { get; set; }
 

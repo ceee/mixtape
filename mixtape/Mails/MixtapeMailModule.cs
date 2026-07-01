@@ -1,5 +1,4 @@
 ﻿using Mixtape.Mails.Dispatchers;
-using Mixtape.Mails.Dispatchers.Postmark;
 using Mixtape.Mails.Dispatchers.Scaleway;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
