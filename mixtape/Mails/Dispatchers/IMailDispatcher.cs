@@ -11,4 +11,9 @@ public interface IMailDispatcher : IDisposable
   /// Whether a certain sender signature is supported by this dispatcher
   /// </summary>
   Task<bool> IsSenderSupported(string email, CancellationToken token = default) => Task.FromResult(true);
+  
+  /// <summary>
+  /// Check whether a certain email address is suppressed
+  /// </summary>
+  Task<MailSuppressionReason> GetSuppressionReason(string email, CancellationToken token = default) => Task.FromResult(MailSuppressionReason.None);
 }

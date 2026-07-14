@@ -3,19 +3,21 @@ using System.Text;
 
 namespace Mixtape.Utils;
 
-public class Safenames
+public static class Safenames
 {
   public enum Scope
   {
     Url,
-    File
+    File,
+    Tag
   }
-
-  const char HYPHEN = '-';
-
-  const char DOT = '.';
-
-  static char[] TICKS = ['`', '\'', '´'];
+  
+  const char Underscore = '_';
+  const char Hyphen = '-';
+  const char Dot = '.';
+  const char Plus = '+';
+  const char Ampersand = '&';
+  static readonly char[] Ticks = ['`', '\'', '´'];
 
 
   /// <summary>
@@ -43,6 +45,15 @@ public class Safenames
   {
     return Generate(value?.ToString(), Scope.Url);
   }
+  
+  
+  /// <summary>
+  /// Converts an untrusted to a safe tag ([a-z][0-9][-][_])
+  /// </summary>
+  public static string Tag(string value)
+  {
+    return Generate(value, Scope.Tag);
+  }
 
 
   /// <summary>
@@ -55,13 +66,13 @@ public class Safenames
       return string.Empty;
     }
 
-    char previous = default;
+    char previous = '\0';
     StringBuilder output = new();
 
-    for (int i = 0; i < value.Length; i++)
+    foreach (char t in value)
     {
       // get character in lower case
-      char character = char.ToLower(value[i]);
+      char character = char.ToLower(t);
       char target;
 
       // do not handle surrogates
@@ -69,8 +80,9 @@ public class Safenames
       {
         continue;
       }
+      
       // do not handle ticks
-      else if (TICKS.Contains(character))
+      if (Ticks.Contains(character))
       {
         continue;
       }
@@ -90,25 +102,42 @@ public class Safenames
       {
         target = character;
       }
-      // - sign for + and &
-      else if (scope == Scope.File && character == DOT)
+      // + sign for + and &
+      else if (scope is not Scope.Tag && character is Plus or Ampersand)
       {
-        target = DOT;
+        target = Plus;
+      }
+      else if (scope == Scope.File && character == Dot)
+      {
+        target = Dot;
+      }
+      else if (scope is Scope.Tag && character == Underscore)
+      {
+        target = Underscore;
       }
       // add hyphen for all other characters
       else
       {
-        target = HYPHEN;
+        target = Hyphen;
       }
 
       // add default characters
-      if (target != HYPHEN)
+      if (target != Hyphen && target != Plus)
       {
         output.Append(target);
       }
       // add hyphen if it isn't first and previous char is not + or -
-      else if (target == HYPHEN && previous != default(char) && previous != HYPHEN)
+      else if (target == Hyphen && previous != 0 && previous != Plus && previous != Hyphen)
       {
+        output.Append(target);
+      }
+      // add plus. do remove hyphen it is the previous character
+      else if (target == Plus)
+      {
+        if (previous == Hyphen)
+        {
+          output.Remove(output.Length - 1, 1);
+        }
         output.Append(target);
       }
 
@@ -125,7 +154,7 @@ public class Safenames
 
     if (output.Length == 0)
     {
-      output.Append(HYPHEN);
+      output.Append(Hyphen);
     }
 
     return output.ToString();

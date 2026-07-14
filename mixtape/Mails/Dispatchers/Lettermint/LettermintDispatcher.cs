@@ -1,8 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Specialized;
+using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mail;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,8 +16,6 @@ namespace Mixtape.Mails.Dispatchers.Lettermint;
 
 public class LettermintDispatcher : IMailDispatcher
 {
-  protected Queue<Mail> Queue { get; } = new();
-
   protected MailOptions Options { get; set; }
 
   protected IWebHostEnvironment Env { get; set; }
@@ -31,9 +33,10 @@ public class LettermintDispatcher : IMailDispatcher
     Env = env;
     Http = http;
     Http.DefaultRequestHeaders.Add("x-lettermint-token", Options.Lettermint.Token);
-    JsonSerializerOptions = new JsonSerializerOptions
+    JsonSerializerOptions = new()
     {
-      PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+      PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+      Converters = { new JsonStringEnumConverter() }
     };
     Logger = logger;
 
@@ -45,6 +48,58 @@ public class LettermintDispatcher : IMailDispatcher
   public Task<bool> IsSenderSupported(string email, CancellationToken token = default)
   {
     return Task.FromResult(true);
+  }
+
+  
+  /// <inheritdoc />
+  public async Task<MailSuppressionReason> GetSuppressionReason(string email, CancellationToken token = default)
+  {
+    if (Options.Lettermint.TeamToken.IsNullOrEmpty())
+    {
+      Logger.LogWarning("Lettermint team token is not set. Suppression status cannot be checked.");
+      return MailSuppressionReason.None;
+    }
+    
+    // build url
+    NameValueCollection query = new()
+    {
+      { "filter[value]", email },
+      { "page[size]", "1" }
+    };
+    string uri = Options.Lettermint.ApiUrl + $"/v1/suppressions?" + query;
+
+    try
+    {
+      using HttpRequestMessage request = new(HttpMethod.Get, uri);
+      request.Headers.Authorization = new("Bearer", Options.Lettermint.TeamToken);
+
+      using HttpResponseMessage responseMessage = await Http.SendAsync(request, token);
+      LettermintResponse.ListSuppressions response = await responseMessage.Content.ReadFromJsonAsync<LettermintResponse.ListSuppressions>(JsonSerializerOptions, token);
+
+      if (!responseMessage.IsSuccessStatusCode)
+      {
+        throw new($"Could not get suppression status via Lettermint API. Status code: {responseMessage.StatusCode} Message: {response.ErrorMessage}");
+      }
+
+      LettermintResponse.ListSuppressionsItem suppression = response.Suppressions.FirstOrDefault();
+
+      // the suppression has to be an email address
+      // and match the query email because the API endpoint does partial matching for email address,
+      // which can lead to false-positives
+      if (suppression is not { Type: LettermintResponse.SuppressionType.Email } || !suppression.Value.Equals(email, StringComparison.OrdinalIgnoreCase))
+      {
+        return MailSuppressionReason.None;
+      }
+
+      Logger.LogDebug("Suppression status {status} for email {email} retrieved from Lettermint API",  suppression.Reason, email);
+      return suppression.Reason;
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Could not send message via Lettermint API");
+    }
+
+    return MailSuppressionReason.None;
   }
 
 
@@ -75,7 +130,7 @@ public class LettermintDispatcher : IMailDispatcher
       Subject = message.Subject,
 
       // tag/group
-      Tag = message.Tag,
+      Tag = Safenames.Tag(message.Tag),
 
       // metadata
       Metadata = message.Metadata,
