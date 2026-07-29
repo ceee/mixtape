@@ -9,12 +9,13 @@ public static class ApplicationBuilderExtensions
 {
   public static IApplicationBuilder UseMixtape(this IApplicationBuilder app)
   {
-    app.UseMiddleware<MixtapeContextMiddleware>();
-    app.UseResponseCaching();
-
     IHostEnvironment env = app.ApplicationServices.GetRequiredService<IHostEnvironment>();
+    
+    app.UseMiddleware<MixtapeContextMiddleware>();
+
     if (!env.IsDevelopment())
     {
+      app.UseResponseCaching();
       app.UseOutputCache();
     }
 
