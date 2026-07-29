@@ -21,9 +21,11 @@ public class MixtapeBuilder
   internal static MixtapeModuleCollection Modules { get; } = new();
 
   readonly IConfiguration _configuration;
+  
+  readonly IMvcBuilder _mvcBuilder;
 
 
-  public MixtapeBuilder(IServiceCollection services, IConfiguration configuration, Action<IMixtapeStartupOptions> setupAction)
+  public MixtapeBuilder(IServiceCollection services, IConfiguration configuration)
   {
     Services = services;
     _configuration = configuration;
@@ -32,23 +34,16 @@ public class MixtapeBuilder
 
     if (isWeb)
     {
-      IMvcBuilder mvcBuilder = services.AddMvc();
-      // create startup options
-      IMixtapeStartupOptions startupOptions = new MixtapeStartupOptions(mvcBuilder);
-      startupOptions.AssemblyDiscoveryRules.Add(new MixtapeAssemblyDiscoveryRule());
-      setupAction?.Invoke(startupOptions);
+      _mvcBuilder = services.AddMvc();
 
       services.AddResponseCaching();
       services.AddControllers();
       services.AddOutputCache();
-      mvcBuilder = services.AddRazorPages();
+      _mvcBuilder = services.AddRazorPages();
 
-      mvcBuilder.AddDataAnnotationsLocalization();
+      _mvcBuilder.AddDataAnnotationsLocalization();
 
       services.Configure<AntiforgeryOptions>(opts => opts.Cookie.Name = "mixtape.antiforgery");
-
-      // adds and discovers additional and built-in assemblies
-      new AssemblyDiscovery(mvcBuilder).Execute(startupOptions.AssemblyDiscoveryRules);
 
       Modules.Add<MixtapeMvcModule>();
     }
@@ -92,6 +87,9 @@ public class MixtapeBuilder
   {
     module.ConfigureServices(Services, _configuration);
     Modules.Add(module);
+    
+    //_mvcBuilder?.AddApplicationPart(module.GetType().Assembly);
+    
     return this;
   }
   
@@ -99,8 +97,6 @@ public class MixtapeBuilder
   public MixtapeBuilder AddModule<T>() where T : class, IMixtapeModule, new()
   {
     T module = new();
-    module.ConfigureServices(Services, _configuration);
-    Modules.Add(module);
-    return this;
+    return AddModule(module);
   }
 }

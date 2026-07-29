@@ -19,4 +19,3 @@ global using Mixtape.Validation;
 global using Mixtape.Localization;
 global using Mixtape.Context;
 global using Mixtape.Communication;
-global using Mixtape.Assemblies;

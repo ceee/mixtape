@@ -7,11 +7,6 @@ public static class ServiceCollectionExtensions
 {
   public static MixtapeBuilder AddMixtape(this IServiceCollection services, IConfiguration configuration)
   {
-    return new MixtapeBuilder(services, configuration, null);
-  }
-
-  public static MixtapeBuilder AddMixtape(this IServiceCollection services, IConfiguration configuration, Action<IMixtapeStartupOptions> setupAction)
-  {
-    return new MixtapeBuilder(services, configuration, setupAction);
+    return new MixtapeBuilder(services, configuration);
   }
 }
