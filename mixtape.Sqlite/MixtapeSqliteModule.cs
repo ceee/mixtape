@@ -7,6 +7,9 @@ using ServiceStack.OrmLite;
 using Mixtape.Configuration;
 using Mixtape.Models;
 using Mixtape.Modules;
+using ServiceStack;
+using ServiceStack.OrmLite.Sqlite;
+using SixLabors.ImageSharp.Processing.Processors.Filters;
 
 namespace Mixtape.Sqlite;
 
@@ -38,7 +41,17 @@ internal class MixtapeSqliteModule : MixtapeModule
   {
     IMixtapeOptions options = services.GetService<IMixtapeOptions>();
     SqliteOptions sqliteOptions = options.For<SqliteOptions>();
-    return new OrmLiteConnectionFactory(sqliteOptions.ConnectionString, SqliteDialect.Provider);
+    
+    SqliteOrmLiteDialectProviderBase dialect = SqliteDialect.Create();
+    //dialect.UseJson = true;
+    //dialect.UseUtc = true;
+    dialect.EnableWal = true;
+    dialect.EnableForeignKeys = true;
+    dialect.BusyTimeout = TimeSpan.FromSeconds(30);
+
+    sqliteOptions.OnConfigure?.Invoke(dialect);
+    
+    return new OrmLiteConnectionFactory(sqliteOptions.ConnectionString, dialect);
   }
 
 
