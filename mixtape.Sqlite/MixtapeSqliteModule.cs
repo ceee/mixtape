@@ -5,11 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using Mixtape.Configuration;
+using Mixtape.Extensions;
+using Mixtape.Identity;
+using Mixtape.Media;
 using Mixtape.Models;
 using Mixtape.Modules;
-using ServiceStack;
+using Mixtape.Numbers;
 using ServiceStack.OrmLite.Sqlite;
-using SixLabors.ImageSharp.Processing.Processors.Filters;
 
 namespace Mixtape.Sqlite;
 
@@ -34,6 +36,10 @@ internal class MixtapeSqliteModule : MixtapeModule
     services.AddOptions<FlavorOptions>();
     services.AddOptions<SqliteOptions>().Bind(configuration.GetSection("Mixtape:Sqlite"));
     services.ConfigureOptions<ConfigureFlavorJsonOptions>();
+    
+    services.Replace<IMixtapeIdentityStoreDbProvider, SqliteIdentityStoreDbProvider>(ServiceLifetime.Scoped);
+    services.Replace<IMixtapeMediaStoreDbProvider, SqliteMediaStoreDbProvider>(ServiceLifetime.Scoped);
+    services.Replace<IMixtapeNumberStoreDbProvider, SqliteNumberStoreDbProvider>(ServiceLifetime.Scoped);
   }
 
 

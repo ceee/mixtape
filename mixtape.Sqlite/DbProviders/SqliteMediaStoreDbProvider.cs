@@ -1,21 +1,26 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Mixtape.Media;
+using Mixtape.Models;
 
-namespace Mixtape.Raven;
+namespace Mixtape.Sqlite;
 
-public class RavenMediaStoreDbProvider(IRavenOperations ops) : IMixtapeMediaStoreDbProvider
+public class SqliteMediaStoreDbProvider(IDbOperations ops) : IMixtapeMediaStoreDbProvider
 {
-  protected IRavenOperations Ops { get; set; } = ops;
+  protected IDbOperations Ops { get; set; } = ops;
 
 
   public Task<T> Find<T>(Expression<Func<T, bool>> expression, CancellationToken ct = default) 
     where T : MixtapeEntity, new() =>
-    Ops.Session.Query<T>().FirstOrDefaultAsync(expression, ct);
+    Ops.Find(expression);
   
 
   public async Task<IList<T>> FindAll<T>(Expression<Func<T, bool>> expression, CancellationToken ct = default) 
     where T : MixtapeEntity, new() =>
-    await Ops.Session.Query<T>().Where(expression).ToListAsync(ct);
+    await Ops.Load(expression);
 
   
   public Task<Result<T>> Create<T>(T model, CancellationToken ct = default) where T : MixtapeEntity, new() =>
