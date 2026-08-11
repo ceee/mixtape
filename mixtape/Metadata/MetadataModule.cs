@@ -33,7 +33,7 @@ public class MixtapeMetadataModule : MixtapeModule
     {
       MemoryStream xml = await sitemap.GenerateXml();
       return Results.Stream(xml, "text/xml");
-    });//.CacheOutput("mixtape.sitemap");
+    }).CacheOutput("mixtape.sitemap");
     
     base.Configure(app, routes, serviceProvider);
   }
