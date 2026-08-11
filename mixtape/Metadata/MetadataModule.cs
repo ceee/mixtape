@@ -29,11 +29,7 @@ public class MixtapeMetadataModule : MixtapeModule
 
   public override void Configure(IApplicationBuilder app, IEndpointRouteBuilder routes, IServiceProvider serviceProvider)
   {
-    routes.MapGet("/sitemap.xml", async (ISitemap sitemap) =>
-    {
-      MemoryStream xml = await sitemap.GenerateXml();
-      return Results.Stream(xml, "text/xml");
-    }).CacheOutput("mixtape.sitemap");
+    routes.MapSitemap("/sitemap.xml");
     
     base.Configure(app, routes, serviceProvider);
   }

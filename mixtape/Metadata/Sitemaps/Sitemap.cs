@@ -10,7 +10,7 @@ namespace Mixtape.Metadata.Sitemaps;
 public class Sitemap(IEnumerable<ISitemapProvider> providers) : ISitemap
 {
   /// <inheritdoc />
-  public async Task<MemoryStream> GenerateXml()
+  public async Task<SitemapResult> Generate()
   {
     // retrieve nodes from all providersj
     List<SitemapNode> nodes = [];
@@ -31,7 +31,12 @@ public class Sitemap(IEnumerable<ISitemapProvider> providers) : ISitemap
     
     // reset the stream to the start
     stream.Position = 0;
-    return stream;
+    
+    return new SitemapResult()
+    {
+      XmlStream = stream,
+      NodeCount = nodes.Count
+    };
   }
 }
 
@@ -42,5 +47,5 @@ public interface ISitemap
   /// Generate the sitemap retrieving nodes from all registered <see cref="ISitemapProvider"/>.
   /// </summary>
   /// <returns>Open stream which contains the complete XML string</returns>
-  Task<MemoryStream> GenerateXml();
+  Task<SitemapResult> Generate();
 }
