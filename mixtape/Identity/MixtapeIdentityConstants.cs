@@ -7,7 +7,7 @@ public class MixtapeIdentityConstants
 {
   public static class CookieNames
   {
-    private const string CookiePrefix = "Mixtape.id";
+    private const string CookiePrefix = "mixtape.id";
     
     public static readonly string Application = CookiePrefix + ".app";
     public static readonly string External = CookiePrefix + ".ext";
@@ -17,7 +17,7 @@ public class MixtapeIdentityConstants
 
   public static partial class Claims
   {
-    private const string ClaimPrefix = "Mixtape.claim";
+    private const string ClaimPrefix = "mixtape.claim";
     
     public static readonly string IsMixtape = ClaimPrefix + ".ismixtape";
     public static readonly string UserId = ClaimPrefix + ".userid";

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Mixtape.Identity;
 
@@ -85,6 +86,7 @@ public static class MixtapeIdentityExtensions
 
     // Hosting doesn't add IHttpContextAccessor by default
     services.AddHttpContextAccessor();
+    services.AddMetrics();
     
     // Identity services
     services.TryAddScoped<IUserValidator<TUser>, UserValidator<TUser>>();
@@ -99,6 +101,7 @@ public static class MixtapeIdentityExtensions
     services.TryAddScoped<ITwoFactorSecurityStampValidator, TwoFactorSecurityStampValidator<TUser>>();
     services.TryAddScoped<IUserClaimsPrincipalFactory<TUser>, UserClaimsPrincipalFactory<TUser, TRole>>();
     services.TryAddScoped<IUserConfirmation<TUser>, DefaultUserConfirmation<TUser>>();
+    services.TryAddScoped<IPasskeyHandler<TUser>, PasskeyHandler<TUser>>();
     services.TryAddScoped<UserManager<TUser>>();
     services.TryAddScoped<SignInManager<TUser>>();
     services.TryAddScoped<RoleManager<TRole>>();
@@ -145,7 +148,7 @@ public static class MixtapeIdentityExtensions
 
     builder.AddDefaultTokenProviders();
     builder.AddMixtapeIdentityStores();
-    
+
     return builder;
   }
   
