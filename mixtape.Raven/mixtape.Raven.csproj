@@ -13,7 +13,7 @@
     <ItemGroup>
         <!-- // for client <-> server compatibility see:
              // https://ravendb.net/docs/article-page/7.0/csharp/client-api/faq/backward-compatibility  -->
-        <PackageReference Include="RavenDB.Client" Version="7.2.2" />
+        <PackageReference Include="RavenDB.Client" Version="7.2.5" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
     </ItemGroup>
 
