@@ -3,7 +3,7 @@
 namespace Mixtape.Models;
 
 [DebuggerDisplay("Id = {Id,nq}, Name = {Name}, Alias = {Alias}")]
-public class MixtapeEntity : MixtapeIdEntity, ISupportsDbConventions, ISupportsRouting, ISupportsFlavors, ISupportsSorting
+public class MixtapeEntity : MixtapeIdEntity, ISupportsDbConventions, ISupportsRouting, ISupportsFlavors, ISupportsSorting, ISupportsDateMetadata
 {
   /// <summary>
   /// Full name of the entity
