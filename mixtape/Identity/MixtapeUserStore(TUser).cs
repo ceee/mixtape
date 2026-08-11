@@ -16,7 +16,8 @@ public partial class MixtapeUserStore<TUser> :
   IUserAuthenticatorKeyStore<TUser>,
   IUserTwoFactorStore<TUser>,
   IUserTwoFactorRecoveryCodeStore<TUser>,
-  IUserPhoneNumberStore<TUser>
+  IUserPhoneNumberStore<TUser>,
+  IUserPasskeyStore<TUser> 
   where TUser : MixtapeIdentityUser, new()
 {
   public MixtapeUserStore(IMixtapeIdentityStoreDbProvider db, IdentityErrorDescriber describer = null)
@@ -551,5 +552,128 @@ public partial class MixtapeUserStore<TUser> :
   {
     user.IsPhoneNumberConfirmed = confirmed;
     return Task.CompletedTask;
+  }
+
+  
+  /// <inheritdoc />
+  public async Task AddOrUpdatePasskeyAsync(TUser user, UserPasskeyInfo passkey, CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+    
+    UserPasskey userPasskey = await FindUserPasskeyByIdAsync(passkey.CredentialId, cancellationToken).ConfigureAwait(false);
+    
+    if (userPasskey != null)
+    {
+      // We only mutate properties that can be updated after passkey creation.
+      // See https://www.w3.org/TR/webauthn-3/#authn-ceremony-update-credential-record
+      userPasskey.Data.Name = passkey.Name;
+      userPasskey.Data.SignCount = passkey.SignCount;
+      userPasskey.Data.IsBackedUp = passkey.IsBackedUp;
+      userPasskey.Data.IsUserVerified = passkey.IsUserVerified;
+    }
+    else
+    {
+      userPasskey = CreateUserPasskey(user, passkey);
+      user.Passkeys.Add(userPasskey);
+    }
+
+    await Db.Update(user, cancellationToken);
+  }
+
+  
+  /// <inheritdoc />
+  public Task<IList<UserPasskeyInfo>> GetPasskeysAsync(TUser user, CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+    return Task.FromResult<IList<UserPasskeyInfo>>(user.Passkeys.Select(x => x.ToUserPasskeyInfo()).ToList());
+  }
+
+  
+  /// <inheritdoc />
+  public async Task<TUser> FindByPasskeyIdAsync(byte[] credentialId, CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+
+    UserPasskey passkey = await FindUserPasskeyByIdAsync(credentialId, cancellationToken).ConfigureAwait(false);
+    if (passkey != null)
+    {
+      return await FindByIdAsync(passkey.UserId, cancellationToken).ConfigureAwait(false);
+    }
+    return null;
+  }
+
+  
+  /// <inheritdoc />
+  public async Task<UserPasskeyInfo> FindPasskeyAsync(TUser user, byte[] credentialId, CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+
+    UserPasskey passkey = await FindUserPasskeyAsync(user.Id, credentialId, cancellationToken).ConfigureAwait(false);
+    return passkey?.ToUserPasskeyInfo();
+  }
+
+  
+  /// <inheritdoc />
+  public async Task RemovePasskeyAsync(TUser user, byte[] credentialId, CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+    
+    user.Passkeys.RemoveAll(x => x.CredentialId.SequenceEqual(credentialId));
+    await Db.Update(user, cancellationToken);
+  }
+  
+  
+  /// <summary>
+  /// Called to create a new instance of a <see cref="UserPasskey"/>.
+  /// </summary>
+  /// <param name="user">The user.</param>
+  /// <param name="passkey">The passkey.</param>
+  /// <returns></returns>
+  protected UserPasskey CreateUserPasskey(TUser user, UserPasskeyInfo passkey)
+  {
+    return new UserPasskey
+    {
+      UserId = user.Id,
+      CredentialId = passkey.CredentialId,
+      Data = new IdentityPasskeyData()
+      {
+        PublicKey = passkey.PublicKey,
+        Name = passkey.Name,
+        CreatedAt = passkey.CreatedAt,
+        Transports = passkey.Transports,
+        SignCount = passkey.SignCount,
+        IsUserVerified = passkey.IsUserVerified,
+        IsBackupEligible = passkey.IsBackupEligible,
+        IsBackedUp = passkey.IsBackedUp,
+        AttestationObject = passkey.AttestationObject,
+        ClientDataJson = passkey.ClientDataJson
+      }
+    };
+  }
+  
+  
+  /// <summary>
+  /// Find a passkey with the specified credential id for a user.
+  /// </summary>
+  /// <param name="userId">The user's id.</param>
+  /// <param name="credentialId">The credential id to search for.</param>
+  /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+  /// <returns>The user passkey if it exists.</returns>
+  private async Task<UserPasskey> FindUserPasskeyAsync(string userId, byte[] credentialId, CancellationToken cancellationToken)
+  {
+    TUser user = await Db.Find<TUser>(x => !x.IsDeleted && x.Id == userId && x.Passkeys.Any(p => p.CredentialId.SequenceEqual(credentialId)), cancellationToken); 
+    return user.Passkeys.FirstOrDefault(x => x.CredentialId.SequenceEqual(credentialId));
+  }
+
+  /// <summary>
+  /// Find a passkey with the specified credential id.
+  /// </summary>
+  /// <param name="credentialId">The credential id to search for.</param>
+  /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+  /// <returns>The user passkey if it exists.</returns>
+  private async Task<UserPasskey> FindUserPasskeyByIdAsync(byte[] credentialId, CancellationToken cancellationToken)
+  {
+    TUser user = await Db.Find<TUser>(x => !x.IsDeleted && x.Passkeys.Any(p => p.CredentialId.SequenceEqual(credentialId)), cancellationToken); 
+    return user.Passkeys.FirstOrDefault(x => x.CredentialId.SequenceEqual(credentialId));
   }
 }

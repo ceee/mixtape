@@ -2,14 +2,11 @@
 
 namespace Mixtape.Identity;
 
-public partial class MixtapeUserStore<TUser, TRole> : MixtapeUserStore<TUser>,
+public partial class MixtapeUserStore<TUser, TRole>(IMixtapeIdentityStoreDbProvider db) : MixtapeUserStore<TUser>(db),
   IUserRoleStore<TUser>
   where TUser : MixtapeIdentityUser, new()
   where TRole : MixtapeIdentityRole, new()
 {
-  public MixtapeUserStore(IMixtapeIdentityStoreDbProvider db) : base(db) { }
-
-
   /// <inheritdoc />
   public Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken)
   {

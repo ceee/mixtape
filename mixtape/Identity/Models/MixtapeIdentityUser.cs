@@ -105,4 +105,9 @@ public abstract class MixtapeIdentityUser : MixtapeEntity
   /// Authenticator tokens
   /// </summary>
   public List<UserToken> Tokens { get; set; } = [];
+  
+  /// <summary>
+  /// Associated user passkeys
+  /// </summary>
+  public List<UserPasskey> Passkeys { get; set; } = [];
 }

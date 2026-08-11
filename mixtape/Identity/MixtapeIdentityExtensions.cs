@@ -124,6 +124,15 @@ public static class MixtapeIdentityExtensions
 
       opts.User.RequireUniqueEmail = true;
     });
+
+    services.Configure<IdentityPasskeyOptions>(opts =>
+    {
+      // options.ServerDomain = builder.Configuration["Passkeys:ServerDomain"];
+      // options.AuthenticatorTimeout = TimeSpan.FromMinutes(3);
+      // options.ChallengeSize = 32;
+      // options.UserVerificationRequirement = "preferred";
+      // options.ResidentKeyRequirement = "required";
+    });
     
     services.Configure<SecurityStampValidatorOptions>(opts => { opts.ValidationInterval = TimeSpan.FromMinutes(90); });
 
