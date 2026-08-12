@@ -24,13 +24,15 @@ public class MixtapeTokenProvider(IMixtapeTokenStoreDbProvider db) : IMixtapeTok
     ArgumentOutOfRangeException.ThrowIfLessThan(length, 16);
 
     string tokenKey = Random(length);
+    DateTimeOffset expiresAt = DateTimeOffset.Now.Add(expires);
 
     SecurityToken securityToken = new()
     {
       Id = TokenToId(tokenKey),
       Token = tokenKey,
       Key = HashKey(key),
-      Metadata = metadata ?? new()
+      Metadata = metadata ?? new(),
+      Expires = expiresAt
     };
 
     // saves the token
@@ -58,16 +60,28 @@ public class MixtapeTokenProvider(IMixtapeTokenStoreDbProvider db) : IMixtapeTok
 
     // try to find a valid token
     SecurityToken securityToken = await Db.Load<SecurityToken>(TokenToId(token));;
-    bool isValid = securityToken != null && VerifyKey(securityToken.Key, key);
 
-    // remove token from DB if it is valid
-    if (isValid)
+    if (securityToken == null)
     {
-      await Db.Delete(securityToken);
-      return securityToken;
+      return null;
     }
 
-    return null;
+    // check if token is expired
+    if (securityToken.Expires < DateTimeOffset.Now)
+    {
+      await Db.Delete(securityToken);
+      return null;
+    }
+
+    // verify cryptographic key
+    if (!VerifyKey(securityToken.Key, key))
+    {
+      return null;
+    }
+
+    // remove token from DB if it is valid
+    await Db.Delete(securityToken);
+    return securityToken;
   }
 
 
@@ -218,7 +232,7 @@ public interface IMixtapeTokenProvider
   /// <returns>
   /// The generated token with the specified <paramref name="length"/>.
   /// </returns>
-  Task<string> Create(string key, TimeSpan expires, int length = 82, Dictionary<string, string> metadata = default);
+  Task<string> Create(string key, TimeSpan expires, int length = 82, Dictionary<string, string> metadata = null);
 
   /// <summary>
   /// Validates the passed <paramref name="token"/> for the specified <paramref name="key"/>.
