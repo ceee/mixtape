@@ -24,7 +24,6 @@ internal class MixtapeRavenModule : MixtapeModule
     services.AddSingleton<IRavenDocumentConventionsBuilder, RavenDocumentConventionsBuilder>();
     services.AddSingleton<IDocumentStore>(CreateRavenStore);
     services.AddScoped<IMixtapeStore, MixtapeStore>();
-    services.AddScoped<IMixtapeTokenProvider, MixtapeTokenProvider>();
     services.AddScoped<StoreContext>();
     services.AddTransient<IRavenOperations, RavenOperations>();
     services.AddScoped<IInterceptors, Interceptors>();

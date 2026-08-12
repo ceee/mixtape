@@ -1,10 +1,7 @@
-﻿namespace Mixtape.Raven;
+﻿namespace Mixtape.Tokens;
 
-[RavenCollection("Tokens")]
-public class SecurityToken : ISupportsDbConventions
+public class SecurityToken : MixtapeIdEntity, ISupportsDbConventions
 {
-  public string Id { get; set; }
-
   public string Key { get; set; }
 
   public string Token { get; set; }

@@ -11,6 +11,7 @@ using Mixtape.Media;
 using Mixtape.Models;
 using Mixtape.Modules;
 using Mixtape.Numbers;
+using Mixtape.Tokens;
 using ServiceStack.OrmLite.Sqlite;
 
 namespace Mixtape.Sqlite;
@@ -40,6 +41,7 @@ internal class MixtapeSqliteModule : MixtapeModule
     services.Replace<IMixtapeIdentityStoreDbProvider, SqliteIdentityStoreDbProvider>(ServiceLifetime.Scoped);
     services.Replace<IMixtapeMediaStoreDbProvider, SqliteMediaStoreDbProvider>(ServiceLifetime.Scoped);
     services.Replace<IMixtapeNumberStoreDbProvider, SqliteNumberStoreDbProvider>(ServiceLifetime.Scoped);
+    services.Replace<IMixtapeTokenStoreDbProvider, SqliteTokenStoreDbProvider>(ServiceLifetime.Scoped);
   }
 
 

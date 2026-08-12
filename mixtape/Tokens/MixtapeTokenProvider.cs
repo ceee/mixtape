@@ -2,35 +2,26 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Mixtape.Raven;
+namespace Mixtape.Tokens;
 
-public class MixtapeTokenProvider : IMixtapeTokenProvider
+public class MixtapeTokenProvider(IMixtapeTokenStoreDbProvider db) : IMixtapeTokenProvider
 {
-  readonly char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-".ToCharArray();
+  readonly char[] _chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-".ToCharArray();
 
-  readonly RandomNumberGenerator randonNumberGenerator;
+  readonly RandomNumberGenerator _randonNumberGenerator = RandomNumberGenerator.Create();
 
-  protected IMixtapeStore Store { get; }
-    
-
-  public MixtapeTokenProvider(IMixtapeStore store)
-  {
-    Store = store;
-    randonNumberGenerator = RandomNumberGenerator.Create();
-  }
+  protected IMixtapeTokenStoreDbProvider Db { get; } = db;
 
 
   /// <inheritdoc />
-  public virtual async Task<string> Create(string key, TimeSpan expires, int length = 82, Dictionary<string, string> metadata = default)
+  public virtual async Task<string> Create(string key, TimeSpan expires, int length = 82, Dictionary<string, string> metadata = null)
   {
     if (key.IsNullOrWhiteSpace())
     {
       throw new ArgumentException("Key cannot be empty");
     }
-    if (length < 16)
-    {
-      throw new ArgumentOutOfRangeException("Use at least a length of 16 for the token");
-    }
+    
+    ArgumentOutOfRangeException.ThrowIfLessThan(length, 16);
 
     string tokenKey = Random(length);
 
@@ -42,14 +33,9 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
       Metadata = metadata ?? new()
     };
 
-    IAsyncDocumentSession session = Store.Session();
-
     // saves the token
-    await session.StoreAsync(securityToken);
-
-    // set the expires flag for the token
-    session.Expires(securityToken, expires);
-    await session.SaveChangesAsync();
+    await Db.Create(securityToken);
+    // set expiration?
 
     return tokenKey;
   }
@@ -58,25 +44,7 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
   /// <inheritdoc />
   public virtual async Task<bool> Verify(string key, string token)
   {
-    if (token.IsNullOrWhiteSpace() || key.IsNullOrWhiteSpace())
-    {
-      return false;
-    }
-
-    IAsyncDocumentSession session = Store.Session();
-
-    // try to find a valid token
-    SecurityToken securityToken = await session.LoadAsync<SecurityToken>(TokenToId(token));
-    bool isValid = securityToken != null && VerifyKey(securityToken.Key, key);
-
-    // remove token from DB if it is valid
-    if (isValid)
-    {
-      session.Delete(securityToken);
-      await session.SaveChangesAsync();
-    }
-
-    return isValid;
+    return await VerifyAndReturn(key, token) != null;
   }
 
 
@@ -88,17 +56,14 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
       return null;
     }
 
-    IAsyncDocumentSession session = Store.Session();
-
     // try to find a valid token
-    SecurityToken securityToken = await session.LoadAsync<SecurityToken>(TokenToId(token));
+    SecurityToken securityToken = await Db.Load<SecurityToken>(TokenToId(token));;
     bool isValid = securityToken != null && VerifyKey(securityToken.Key, key);
 
     // remove token from DB if it is valid
     if (isValid)
     {
-      session.Delete(securityToken);
-      await session.SaveChangesAsync();
+      await Db.Delete(securityToken);
       return securityToken;
     }
 
@@ -110,16 +75,16 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
   public string Random(int length)
   {
     byte[] data = new byte[4 * length];
-    randonNumberGenerator.GetBytes(data);
+    _randonNumberGenerator.GetBytes(data);
 
     StringBuilder result = new(length);
 
     for (int i = 0; i < length; i++)
     {
-      var rnd = BitConverter.ToUInt32(data, i * 4);
-      var idx = rnd % chars.Length;
+      uint rnd = BitConverter.ToUInt32(data, i * 4);
+      long idx = rnd % _chars.Length;
 
-      result.Append(chars[idx]);
+      result.Append(_chars[idx]);
     }
 
     return result.ToString();
@@ -133,11 +98,9 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
     {
       return false;
     }
-
-    IAsyncDocumentSession session = Store.Session();
-
+    
     // try to find a valid token
-    SecurityToken securityToken = await session.LoadAsync<SecurityToken>(TokenToId(token));
+    SecurityToken securityToken = await Db.Load<SecurityToken>(TokenToId(token));
     return securityToken != null;
   }
 
@@ -147,9 +110,7 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
   /// </summary>
   string TokenToId(string token)
   {
-    string collection = Store.Raven.Conventions.GetCollectionName(typeof(SecurityToken));
-    string idPrefix = Store.Raven.Conventions.TransformTypeCollectionNameToDocumentIdPrefix(collection);
-    return idPrefix + Store.Raven.Conventions.IdentityPartsSeparator + token;
+    return $"sectok.{token}";
   }
 
 
@@ -162,16 +123,16 @@ public class MixtapeTokenProvider : IMixtapeTokenProvider
   {
     key = key.ToLowerInvariant();
 
-    KeyDerivationPrf prf = KeyDerivationPrf.HMACSHA256;
-    int iterationCount = 10000;
-    int saltSize = 128 / 8;
-    int numBytesRequested = 256 / 8;
+    const KeyDerivationPrf prf = KeyDerivationPrf.HMACSHA256;
+    const int iterationCount = 10000;
+    const int saltSize = 128 / 8;
+    const int numBytesRequested = 256 / 8;
 
     byte[] salt = new byte[saltSize];
-    randonNumberGenerator.GetBytes(salt);
+    _randonNumberGenerator.GetBytes(salt);
     byte[] subkey = KeyDerivation.Pbkdf2(key, salt, prf, iterationCount, numBytesRequested);
 
-    var outputBytes = new byte[13 + salt.Length + subkey.Length];
+    byte[] outputBytes = new byte[13 + salt.Length + subkey.Length];
     outputBytes[0] = 0x01;
     WriteNetworkByteOrder(outputBytes, 1, (uint)prf);
     WriteNetworkByteOrder(outputBytes, 5, (uint)iterationCount);

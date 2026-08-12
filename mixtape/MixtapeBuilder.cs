@@ -9,6 +9,7 @@ using Mixtape.Mvc;
 using Mixtape.Numbers;
 using Mixtape.Routing;
 using Mixtape.Security;
+using Mixtape.Tokens;
 
 namespace Mixtape;
 
@@ -65,6 +66,7 @@ public class MixtapeBuilder
     Modules.Add<MixtapeRoutingModule>();
     Modules.Add<MixtapeMetadataModule>();
     Modules.Add<MixtapeSecurityModule>();
+    Modules.Add<MixtapeTokenModule>();
 
     Modules.ConfigureServices(services, configuration);
 
