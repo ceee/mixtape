@@ -15,15 +15,13 @@ namespace Mixtape;
 
 // TODO maybe use a middleware like Hangfire does: https://github.com/HangfireIO/Hangfire/blob/master/src/Hangfire.AspNetCore/HangfireEndpointRouteBuilderExtensions.cs
 
-public class MixtapeBuilder
+public sealed class MixtapeBuilder
 {
-  public virtual IServiceCollection Services { get; }
+  public IServiceCollection Services { get; }
 
   internal static MixtapeModuleCollection Modules { get; } = new();
 
   readonly IConfiguration _configuration;
-  
-  readonly IMvcBuilder _mvcBuilder;
 
 
   public MixtapeBuilder(IServiceCollection services, IConfiguration configuration)
@@ -35,14 +33,12 @@ public class MixtapeBuilder
 
     if (isWeb)
     {
-      _mvcBuilder = services.AddMvc();
-
       services.AddResponseCaching();
       services.AddControllers();
       services.AddOutputCache();
-      _mvcBuilder = services.AddRazorPages();
+      IMvcBuilder mvcBuilder = services.AddMvc();
 
-      _mvcBuilder.AddDataAnnotationsLocalization();
+      mvcBuilder.AddDataAnnotationsLocalization();
 
       services.Configure<AntiforgeryOptions>(opts => opts.Cookie.Name = "mixtape.antiforgery");
 
@@ -85,7 +81,7 @@ public class MixtapeBuilder
   }
 
 
-  public MixtapeBuilder AddModule(IMixtapeModule module)
+  public MixtapeBuilder AddModule<T>(T module) where T : IMixtapeModule
   {
     module.ConfigureServices(Services, _configuration);
     Modules.Add(module);

@@ -8,7 +8,7 @@ namespace Mixtape.Modules;
 
 public class MixtapeModuleCollection : MixtapeModule
 {
-  ConcurrentDictionary<Type, IMixtapeModule> _modules = new();
+  readonly ConcurrentDictionary<Type, IMixtapeModule> _modules = new();
 
 
   /// <summary>
