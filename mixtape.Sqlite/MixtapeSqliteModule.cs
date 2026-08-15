@@ -70,7 +70,15 @@ internal class MixtapeSqliteModule : MixtapeModule
     SqliteOptions sqliteOptions = options.For<SqliteOptions>();
     IDbConnection db = factory.CreateDbConnection();
     db.Open();
+
+    // auto create tables
+    foreach (Type type in sqliteOptions.RegisteredTables)
+    {
+      db.CreateTableIfNotExists(type);
+    }
+    
     sqliteOptions.OnConnectionCreate?.Invoke(db);
+    
     return db;
   }
 }
