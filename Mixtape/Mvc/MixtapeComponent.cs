@@ -51,12 +51,23 @@ public class MixtapeComponent : TagHelper
   /// </summary>
   [HtmlAttributeNotBound]
   public bool IsChildContentNullOrEmpty => ChildContent is null || ChildContent.IsEmptyOrWhiteSpace;
+  
+  /// <summary>
+  /// Whether the output is suppressed or not
+  /// </summary>
+  private bool IsSuppressed { get; set; }
 
 
   protected MixtapeComponent()
   {
     RazorViewName = GetViewName(GetType());
     RazorViewPath = GetViewPath(GetType());
+  }
+
+  protected MixtapeComponent(string razorViewName, string razorViewPath = null)
+  {
+    RazorViewName = razorViewName;
+    RazorViewPath = razorViewPath ?? GetViewPath(GetType());
   }
   
   
@@ -233,15 +244,23 @@ public class MixtapeComponent : TagHelper
   /// <returns></returns>
   protected async Task RenderPartialView<T>(string viewRoute, TagHelperOutput output, T model)
   {
+    await InvokeAsync();
+
+    if (IsSuppressed)
+    {
+      output.TagName = null;
+      output.SuppressOutput();
+      return;
+    }
+    
     TagHelperContent childContent = await output.GetChildContentAsync();
 
     if (childContent is not null)
     {
       ChildContent = childContent;
     }
-
+    
     IHtmlHelper htmlHelper = GetHtmlHelper();
-    await InvokeAsync();
     IHtmlContent content = await htmlHelper.PartialAsync(viewRoute, model);
     output.Content.SetHtmlContent(content);
     output.TagName = null;
@@ -256,9 +275,19 @@ public class MixtapeComponent : TagHelper
     Invoke();
     return Task.CompletedTask;
   }
+  
 
   /// <summary>
   /// Invokes before the component is rendered
   /// </summary>
   protected virtual void Invoke() { }
+  
+  
+  /// <summary>
+  /// Suppress output of the component
+  /// </summary>
+  protected void SuppressOutput()
+  {
+    IsSuppressed = true;
+  }
 }
