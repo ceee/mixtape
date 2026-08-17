@@ -2,6 +2,13 @@
 
 public class MetadataOptions
 {
+  public MetadataOptions() { }
+
+  public MetadataOptions(params string[] titleFragments)
+  {
+    TitleFragments.AddRange(titleFragments);
+  }
+  
   public List<string> TitleFragments { get; set; } = [];
 
   public bool? NoIndex { get; set; }
@@ -22,12 +29,8 @@ public class MetadataOptions
 
   public bool HidePageName { get; set; }
 
-  //public Schema Schema { get; set; }
-
-  public MetadataOptions() { }
-
-  public MetadataOptions(params string[] titleFragments)
-  {
-    TitleFragments.AddRange(titleFragments);
-  }
+  /// <summary>
+  /// Additional properties which can be used for templating
+  /// </summary>
+  public Dictionary<string, string> Properties { get; set; } = [];
 }
