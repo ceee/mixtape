@@ -1,35 +1,32 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Mixtape.Context;
 
-public class MixtapeContext(
-  IMixtapeOptions options,
-  ICultureResolver cultureResolver,
-  IServiceProvider services)
-  : IMixtapeContext
+public sealed class MixtapeContext(IOptionsSnapshot<MixtapeOptions> options, ICultureResolver cultureResolver, IServiceProvider services) : IMixtapeContext
 {
   /// <inheritdoc />
-  public IMixtapeOptions Options { get; } = options;
+  public IMixtapeOptions Options { get; } = options.Value;
 
   /// <inheritdoc />
   public IServiceProvider Services { get; } = services;
-
-
+  
   bool _resolved = false;
 
 
   /// <inheritdoc />
-  public virtual async Task Resolve(HttpContext context)
+  public Task Resolve(HttpContext context)
   {
     if (_resolved)
     {
-      return;
+      return Task.CompletedTask;
     }
 
     // set current culture
-    await cultureResolver.Resolve(this);
-
+    cultureResolver.Resolve(Options.Language);
+    
     _resolved = true;
+    return Task.CompletedTask;
   }
 }
 

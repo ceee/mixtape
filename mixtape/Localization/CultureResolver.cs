@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
 
 namespace Mixtape.Localization;
 
@@ -14,25 +15,38 @@ public class CultureResolver : ICultureResolver
 
   protected IMessageAggregator MessageAggregator { get; }
 
+  private string _currentLocaleCode;
 
-  public CultureResolver(ILogger<CultureResolver> logger, IMessageAggregator messageAggregator)
+
+  public CultureResolver(ILogger<CultureResolver> logger, IMessageAggregator messageAggregator, IOptionsMonitor<MixtapeOptions> mixtapeOptions)
   {
     Logger = logger;
     MessageAggregator = messageAggregator;
+
+    // update culture in case the language (found in options) changes 
+    mixtapeOptions.OnChange(options =>
+    {
+      if (options.Language != _currentLocaleCode)
+      {
+        Resolve(options.Language);
+        Logger.LogInformation("Culture changed to: {culture}", Current);
+      }
+    });
   }
 
 
   /// <inheritdoc />
-  public Task<CultureInfo> Resolve(IMixtapeContext context)
+  public CultureInfo Resolve(string localeCode)
   {
-    if (!TryConvert(context.Options.Language, out CultureInfo culture))
+    _currentLocaleCode = localeCode;
+    
+    if (!TryConvert(localeCode, out CultureInfo culture))
     {
       culture = CultureInfo.CurrentCulture;
     }
 
     Set(culture);
-
-    return Task.FromResult(culture);
+    return culture;
   }
 
 
@@ -96,7 +110,7 @@ public interface ICultureResolver
   /// Resolves the current application from either the backoffice user (in case it is backoffice request)
   /// or the domain (in case it is frontend request).
   /// </summary>
-  Task<CultureInfo> Resolve(IMixtapeContext context);
+  CultureInfo Resolve(string localeCode);
 
   /// <summary>
   /// Tries to convert an ISO code to a culture

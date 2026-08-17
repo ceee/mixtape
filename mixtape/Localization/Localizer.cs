@@ -13,7 +13,7 @@ public abstract class Localizer : ILocalizer
   protected string LanguageCode { get; set; }
 
 
-  public Localizer(ICultureResolver cultureResolver)
+  protected Localizer(ICultureResolver cultureResolver)
   {
     CultureResolver = cultureResolver;
     CultureResolver.Subscribe(msg => OnCultureChange(msg.Culture));
@@ -25,6 +25,8 @@ public abstract class Localizer : ILocalizer
   {
     culture ??= CultureInfo.InvariantCulture;
     LanguageCode = culture.Name.Split(['_', '-'])[0];
+    Console.WriteLine($"Culture: {culture}, LanguageCode: {LanguageCode}");
+    Cache.Clear();
     return Task.CompletedTask;
   }
 
@@ -106,12 +108,12 @@ public abstract class Localizer : ILocalizer
 public interface ILocalizer
 {
   /// <summary>
-  /// 
+  /// Get a text string from a key in the dictionary
   /// </summary>
   string Text(string key);
 
   /// <summary>
-  /// 
+  /// Get a text string from a key in the dictionary (with token replacement)
   /// </summary>
   string Text(string key, Dictionary<string, string> tokens);
 
@@ -121,7 +123,7 @@ public interface ILocalizer
   string Text<T>(T enumValue) where T : Enum;
 
   /// <summary>
-  /// Get a text string from a [Localize] attribute
+  /// Get a text string from a [Localize] attribute (with token replacement)
   /// </summary>
   string Text<T>(T enumValue, Dictionary<string, string> tokens) where T : Enum;
 
@@ -131,7 +133,7 @@ public interface ILocalizer
   string Maybe(string key);
 
   /// <summary>
-  /// Only tries to resolve the key when it is prefixed with an @
+  /// Only tries to resolve the key when it is prefixed with an @ (with token replacement)
   /// </summary>
   string Maybe(string key, Dictionary<string, string> tokens);
 }

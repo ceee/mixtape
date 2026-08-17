@@ -3,24 +3,11 @@ using Microsoft.Extensions.Localization;
 
 namespace Mixtape.Localization;
 
-public class StringLocalizer<T> : StringLocalizer, IStringLocalizer<T>
+public class StringLocalizer<T>(ILocalizer localizer) : StringLocalizer(localizer), IStringLocalizer<T>;
+
+
+public class StringLocalizer(ILocalizer localizer) : IStringLocalizer
 {
-  public StringLocalizer(ILocalizer localizer) : base(localizer)
-  {
-    
-  }
-}
-
-public class StringLocalizer : IStringLocalizer
-{
-  private readonly ILocalizer _localizer;
-
-  public StringLocalizer(ILocalizer localizer)
-  {
-    _localizer = localizer;
-  }
-
-
   public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures)
   {
     return new List<LocalizedString>();
@@ -42,13 +29,13 @@ public class StringLocalizer : IStringLocalizer
   public IStringLocalizer WithCulture(CultureInfo culture)
   {
     CultureInfo.DefaultThreadCurrentCulture = culture;
-    return new StringLocalizer(_localizer);
+    return new StringLocalizer(localizer);
   }
 
   private string GetString(string name)
   {
     string cultureName = CultureInfo.CurrentCulture.Name;
-    string value = _localizer.Text(name);
+    string value = localizer.Text(name);
 
     if (string.IsNullOrEmpty(value))
     {

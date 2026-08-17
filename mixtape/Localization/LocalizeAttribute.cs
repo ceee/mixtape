@@ -1,12 +1,7 @@
 ﻿namespace Mixtape.Localization;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Field, AllowMultiple = false)]
-public class LocalizeAttribute : Attribute
+public class LocalizeAttribute(string key) : Attribute
 {
-  public string Key;
-
-  public LocalizeAttribute(string key)
-  {
-    Key = key;
-  }
+  public readonly string Key = key;
 }

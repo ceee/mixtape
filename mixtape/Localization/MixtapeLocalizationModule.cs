@@ -11,6 +11,7 @@ internal class MixtapeLocalizationModule : MixtapeModule
   public override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
   {
     // hint: think about using https://github.com/nuages-io/nuages-localization
+    services.AddSingleton<ConfigurationLocalizationCache>();
     services.AddScoped<ICultureResolver, CultureResolver>();
     services.AddScoped<ICultureService, CultureService>();
     services.AddScoped<ILocalizer, ConfigurationLocalizer>();
@@ -24,8 +25,7 @@ internal class MixtapeLocalizationModule : MixtapeModule
 
     services.AddLocalization();
     
-
-    services.AddOptions<LocalizationOptions>().Bind(configuration.GetSection("Mixtape:Localization")).Configure(opts =>
+    services.AddOptions<LocalizationOptions>().BindConfiguration("Mixtape:Localization").Configure(opts =>
     {
       opts.FilePath = "Config/texts.json";
     });
