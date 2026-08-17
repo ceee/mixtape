@@ -64,10 +64,10 @@ public class MixtapeComponent : TagHelper
     RazorViewPath = GetViewPath(GetType());
   }
 
-  protected MixtapeComponent(string razorViewName, string razorViewPath = null)
+  protected MixtapeComponent(string razorViewPath)
   {
-    RazorViewName = razorViewName;
-    RazorViewPath = razorViewPath ?? GetViewPath(GetType());
+    RazorViewName = null;
+    RazorViewPath = razorViewPath;
   }
   
   

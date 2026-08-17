@@ -25,7 +25,6 @@ public abstract class Localizer : ILocalizer
   {
     culture ??= CultureInfo.InvariantCulture;
     LanguageCode = culture.Name.Split(['_', '-'])[0];
-    Console.WriteLine($"Culture: {culture}, LanguageCode: {LanguageCode}");
     Cache.Clear();
     return Task.CompletedTask;
   }
