@@ -30,6 +30,17 @@ public class AnalyticsTrackerTagHelper(IOptionsMonitor<AnalyticsOptions> options
     output.Attributes.SetAttribute("src", _options.Endpoint + "/friend.js");
     // the website is injected into the script
     //output.Attributes.SetAttribute("data-website-id", _options.TrackingId);
-    output.Attributes.SetAttribute("data-performance", "true");
+    if (_options.TrackPerformance)
+    {
+      output.Attributes.SetAttribute("data-performance", "true");
+    }
+    if (_options.TrackHashtags)
+    {
+      output.Attributes.SetAttribute("data-exclude-hash", "true");
+    }
+    if (!_options.AutoTrack)
+    {
+      output.Attributes.SetAttribute("data-auto-track", "false");
+    }
   }
 }
