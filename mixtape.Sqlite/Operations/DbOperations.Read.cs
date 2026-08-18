@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ServiceStack.OrmLite;
+using Fisher.Linq;
+using Fisher.Pagination;
 using Mixtape.Extensions;
 using Mixtape.Models;
+using Mixtape.Utils;
 
 namespace Mixtape.Sqlite;
 
@@ -23,7 +25,7 @@ public partial class DbOperations : IDbOperations
       //return WhenActive(await GetRevision(changeVector)); // TODO
     }
 
-    return WhenActive(await Db.SingleByIdAsync<T>(id));
+    return WhenActive(await Session.LoadAsync<T>(id));
   }
 
 
@@ -32,13 +34,13 @@ public partial class DbOperations : IDbOperations
   {
     ids = ids.Distinct().ToArray();
 
-    List<T> models = await Db.SelectByIdsAsync<T>(ids);
+    IReadOnlyList<T> models = await Session.LoadManyAsync<T>(ids.ToArray());
     Dictionary<string, T> result = new();
 
     foreach (string id in ids)
     {
-      T model = models.FirstOrDefault(x => x.Id == id);
-      result.Add(id, WhenActive(model));
+      T entity = models.FirstOrDefault(x => x.Id == id);
+      result.Add(id, WhenActive(entity));
     }
 
     return result;
@@ -50,53 +52,50 @@ public partial class DbOperations : IDbOperations
   {
     ids = ids.Distinct().ToArray();
 
-    List<T> models = await Db.SelectByIdsAsync<T>(ids);
-    List<T> result = [];
-
-    foreach (string id in ids)
-    {
-      T model = models.FirstOrDefault(x => x.Id == id);
-      if (WhenActive(model) != null)
-      {
-        result.Add(model);
-      }
-    }
-
-    return result;
+    IReadOnlyList<T> models = await Session.LoadManyAsync<T>(ids.ToArray());
+    return models.ToList();
   }
 
 
   /// <inheritdoc />
-  public virtual async Task<bool> Any<T>(Expression<Func<T, bool>> querySelector = null) where T : MixtapeIdEntity, new()
+  public virtual async Task<bool> Any<T>(Func<IQueryable<T>, IQueryable<T>> querySelector = default) where T : MixtapeIdEntity, new()
   {
-    return await Db.ExistsAsync(querySelector ?? (x => true));
+    querySelector ??= x => x;
+    return await querySelector(Session.Query<T>()).AnyAsync();
   }
 
-  
+
   /// <inheritdoc />
-  public virtual async Task<List<T>> Load<T>(Expression<Func<T, bool>> querySelector) where T : MixtapeIdEntity, new()
+  public virtual async Task<Paged<T>> Load<T>(int pageNumber, int pageSize, Func<IQueryable<T>, IQueryable<T>> querySelector = default) where T : MixtapeIdEntity, new()
   {
-    return await Db.SelectAsync(querySelector ?? (x => true));
-  }
-  
-  
-  /// <inheritdoc />
-  public virtual async Task<T> Find<T>(Expression<Func<T, bool>> querySelector) where T : MixtapeIdEntity, new()
-  {
-    return await Db.SingleAsync(querySelector);
-  }
-  
-  
-  /// <inheritdoc />
-  public virtual async Task<List<T>> LoadBySql<T>(Func<SqlExpression<T>, SqlExpression<T>> querySelector) where T : MixtapeIdEntity, new()
-  {
-    return await Db.SelectAsync(querySelector(Db.From<T>()));
+    IQueryable<T> queryable = Session.Query<T>();
+    querySelector ??= x => x;
+
+    IPagedList<T> result = await querySelector(queryable).ToPagedListAsync(pageNumber, pageSize);
+    return new((List<T>)result, result.TotalItemCount, pageNumber, pageSize);
   }
 
-  
+
+  /// <inheritdoc />
+  public virtual async Task<List<T>> Load<T>(Func<IQueryable<T>, IQueryable<T>> querySelector) where T : MixtapeIdEntity, new()
+  {
+    IQueryable<T> queryable = Session.Query<T>();
+    querySelector ??= x => x;
+
+    return (List<T>)(await querySelector(queryable).ToListAsync());
+  }
+
+
+  /// <inheritdoc />
+  public virtual async Task<List<T>> Load<T>(Expression<Func<T, bool>> predicate) where T : MixtapeIdEntity, new()
+  {
+    return (List<T>)(await Session.Query<T>().Where(predicate).ToListAsync());
+  }
+
+
   /// <inheritdoc />
   public virtual async Task<List<T>> LoadAll<T>() where T : MixtapeIdEntity, new()
   {
-    return await Db.SelectAsync<T>(x => true);
+    return (List<T>)(await Session.Query<T>().ToListAsync());
   }
 }

@@ -1,7 +1,4 @@
-﻿
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using ServiceStack.OrmLite;
+﻿using System.Threading.Tasks;
 using Mixtape.Models;
 
 namespace Mixtape.Sqlite;
@@ -20,9 +17,15 @@ public partial class DbOperations : IDbOperations
     
     if (model == null)
     {
-      Logger.LogWarning("Could not delete entity (model is null) for type {type}", typeof(T));
       return Result<T>.Fail("@errors.ondelete.idnotfound");
     }
+
+    // InterceptorInstruction<T> instruction = Interceptors.ForDelete(model);
+    //
+    // if (InterceptorBlocker == null && !await instruction.Start(this))
+    // {
+    //   return instruction.Result;
+    // }
 
     if (model is ISupportsSoftDelete softDeleteModel)
     {
@@ -30,12 +33,31 @@ public partial class DbOperations : IDbOperations
     }
     else
     {
-      await Db.DeleteByIdAsync<T>(model.Id);
+      Session.Delete(model);
     }
 
-    Logger.LogInformation("{id} ({type}) successfully deleted", typeof(T), model.Id);
-    await EntityModifiedHandler.Deleted(model);
+    await Session.SaveChangesAsync();
+    // if (InterceptorBlocker == null)
+    // {
+    //   await instruction.Complete();
+    //   await Session.SaveChangesAsync();
+    // }
 
     return Result<T>.Success();
   }
+
+
+  /// <inheritdoc />
+  // public virtual async Task Purge<T>(string querySuffix = null, Parameters parameters = null) where T : MixtapeIdEntity, new()
+  // {
+  //   var collectionName = Store.Raven.Conventions.FindCollectionName(typeof(T));
+  //   var operationQuery = new DeleteByQueryOperation(new IndexQuery()
+  //   {
+  //     Query = $"from {collectionName} c {querySuffix ?? string.Empty}",
+  //     QueryParameters = parameters
+  //   }, new QueryOperationOptions { AllowStale = true });
+  //
+  //   Operation operation = await Store.Raven.Operations.SendAsync(operationQuery);
+  //   await operation.WaitForCompletionAsync();
+  // }
 }

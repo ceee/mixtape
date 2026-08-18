@@ -2,50 +2,53 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fisher;
 using FluentValidation.Results;
-using Microsoft.Extensions.Logging;
-using ServiceStack.OrmLite;
-using Mixtape.Models;
 using Mixtape.Extensions;
+using Mixtape.Models;
+using Mixtape.Sqlite;
 
 namespace Mixtape.Sqlite;
 
 public partial class DbOperations : IDbOperations
 {
   /// <inheritdoc />
-  public virtual Task<Result<T>> Create<T>(T model, Func<T, Task<ValidationResult>> validate = null) where T : MixtapeIdEntity, new() => Save(model, validate);
+  public virtual Task<Result<T>> Create<T>(T model, Func<T, Task<ValidationResult>> validate = null, Action<IDocumentSession> onAfterStore = null) where T : MixtapeIdEntity, new() => Save(model, validate, onAfterStore);
 
   /// <inheritdoc />
-  public virtual Task<Result<T>> Update<T>(T model, Func<T, Task<ValidationResult>> validate = null) where T : MixtapeIdEntity, new() => Save(model, validate, true);
+  public virtual Task<Result<T>> Update<T>(T model, Func<T, Task<ValidationResult>> validate = null, Action<IDocumentSession> onAfterStore = null) where T : MixtapeIdEntity, new() => Save(model, validate, onAfterStore, true);
 
   /// <inheritdoc />
   public virtual async Task<Result<T>> CreateOrUpdate<T>(T model, Func<T, Task<ValidationResult>> validate = null) where T : MixtapeIdEntity, new()
   {
-    bool update = !model.Id.IsNullOrEmpty() && await Any<T>(x => x.Id == model.Id);
-    return await Save(model, validate, update);
+    bool update = !model.Id.IsNullOrEmpty() && await Any<T>(q => q.Where(x => x.Id == model.Id));
+    return await Save(model, validate, update: update);
   }
-
+  
   /// <inheritdoc />
-  protected virtual async Task<Result<T>> Save<T>(T model, Func<T, Task<ValidationResult>> validate = null, bool update = false) where T : MixtapeIdEntity, new()
+  protected virtual async Task<Result<T>> Save<T>(T model, Func<T, Task<ValidationResult>> validate = null, Action<IDocumentSession> onAfterStore = null, bool update = false) where T : MixtapeIdEntity, new()
   {
     if (model == null)
     {
-      Logger.LogWarning("Could not create/update entity (model is null) for type {type}", typeof(T));
       return Result<T>.Fail("@errors.onsave.empty");
     }
+
+    T previousModel = null;
 
     // check if the Id for a model already exists
     if (!model.Id.IsNullOrEmpty())
     {
-      T previousModel = await Db.SingleByIdAsync<T>(model.Id);
-
-      if (update && previousModel == null)
+      await using (IDocumentSession session = Store.Session(MixtapeSessionResolution.Create, options: new() { Tracking = DocumentTracking.None }))
       {
-        return Result<T>.Fail("@errors.onsave.noidmatch");
+        previousModel = await session.LoadAsync<T>(model.Id);
       }
-      else if (!update && previousModel != null)
+
+      switch (update)
       {
-        return Result<T>.Fail("@errors.oncreate.idmismatch");
+        case true when previousModel == null:
+          return Result<T>.Fail("@errors.onsave.noidmatch");
+        case false when previousModel != null:
+          return Result<T>.Fail("@errors.oncreate.idmismatch");
       }
     }
 
@@ -54,7 +57,6 @@ public partial class DbOperations : IDbOperations
     {
       if (!Flavors.Exists<T>(flavorModel.Flavor))
       {
-        Logger.LogWarning("Flavor {flavor} not found for type {type}", flavorModel.Flavor, typeof(T));
         return Result<T>.Fail("@errors.onsave.flavornotfound");
       }   
     }
@@ -69,56 +71,91 @@ public partial class DbOperations : IDbOperations
 
       if (!validation.IsValid)
       {
-        Logger.LogInformation("Validation failed for {id} ({errors})", model.Id, validation.Errors);
         return Result<T>.Fail(validation);
       }
     }
 
     // create ID before-hand so interceptors can use it
-    if (!update && !model.Id.HasValue())
+    if (!update)
     {
       model.Id = await GenerateId(model);
     }
 
+    // run interceptor
+    //InterceptorInstruction<T> instruction = update ? Interceptors.ForUpdate(model, previousModel) : Interceptors.ForCreate(model);
+
+    // if (InterceptorBlocker == null && !await instruction.Start(this))
+    // {
+    //   return instruction.Result;
+    // }
+
     // store our model
-    await Db.SaveAsync(model);
-
-    string action = update ? "Updated" : "Created";
-    if (model is MixtapeEntity mixtapeEntity)
-    {
-      Logger.LogInformation(action + " {id} with name {name}", model.Id, mixtapeEntity.Name);
-    }
-    else
-    {
-      Logger.LogInformation(action + " {id}", model.Id);
-    }
-
-    await EntityModifiedHandler.Saved(model, update);
+    Session.Store(model);
+    onAfterStore?.Invoke(Session);
+    await Session.SaveChangesAsync();
+    // if (InterceptorBlocker == null)
+    // {
+    //   await instruction.Complete();
+    //   await Session.SaveChangesAsync();
+    // }
 
     return Result<T>.Success(model);
   }
 
 
   /// <inheritdoc />
-  public virtual async Task Sort<T>(IEnumerable<string> ids) where T : MixtapeEntity, new()
+  public async Task<Result<IOrderedEnumerable<T>>> Sort<T>(string[] sortedIds) where T : MixtapeIdEntity, ISupportsSorting, new()
   {
-    List<T> items = await LoadAll<T>();
+    Dictionary<string, T> items = await Load<T>(sortedIds);
+    uint index = 10;
 
-    uint sort = 0;
-    foreach (string id in ids)
+    // contains multiple parents, therefore fail
+    if (typeof(ISupportsTrees).IsAssignableFrom(typeof(T)) && items.Select(x => (x.Value as ISupportsTrees)?.ParentId).Distinct().Count() > 1)
     {
-      T item = items.FirstOrDefault(x => x.Id == id);
-      if (item != null)
-      {
-        sort += 10;
-        item.Sort = sort;
-        item.LastModifiedDate = DateTimeOffset.Now;
-      }
+      return Result<IOrderedEnumerable<T>>.Fail("@errors.treeentity.sortingmultipleparents");
     }
-    await Db.UpdateAllAsync(items);
-    foreach (T item in items)
+
+    foreach (KeyValuePair<string, T> item in items)
     {
-      await EntityModifiedHandler.Updated(item);
+      item.Value.Sort = index;
+      index += 10;
+      await Update(item.Value);
     }
+
+    return Result<IOrderedEnumerable<T>>.Success(items.Select(x => x.Value).OrderByDescending(x => x.Sort));
+  }
+
+
+  /// <inheritdoc />
+  public virtual async Task<Result<IEnumerable<T>>> CreateAll<T>(IReadOnlyCollection<T> models) where T : MixtapeIdEntity, new()
+  {
+    foreach (T model in models)
+    {
+      // prepare model
+      PrepareForSave(model);
+
+      // create ID before-hand so interceptors can use it
+      model.Id = await GenerateId(model);
+
+      // run interceptor
+      //InterceptorInstruction<T> instruction = Interceptors.ForCreate(model);
+
+      // if (InterceptorBlocker == null && !await instruction.Start(this))
+      // {
+      //   await bulkInsert.AbortAsync();
+      //   return instruction.Result.ConvertTo<IEnumerable<T>>(null);
+      // }
+
+      // store our model
+      // await bulkInsert.StoreAsync(model);
+      // if (InterceptorBlocker == null)
+      // {
+      //   await instruction.Complete();
+      // }
+    }
+
+    await Store.Fisher.Advanced.BulkInsertAsync(models, BulkInsertMode.OverwriteExisting);
+
+    return Result<IEnumerable<T>>.Success(models);
   }
 }

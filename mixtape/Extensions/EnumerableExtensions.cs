@@ -14,6 +14,20 @@ public static class EnumerableExtensions
 
     return source.Skip((pageNumber - 1) * pageSize).Take(pageSize);
   }
+  
+  
+  public static IQueryable<T> Paging<T>(this IQueryable<T> source, int pageNumber, int pageSize)
+  {
+    pageNumber = pageNumber.Limit(1, 10_000_000);
+    pageSize = pageSize.Limit(1, 1_000);
+
+    if (pageNumber <= 0 || pageSize <= 0)
+    {
+      throw new NotSupportedException("Both pageNumber and pageSize must be greater than z_ero");
+    }
+
+    return source.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+  }
 
 
   public static bool TryGet<T>(this IEnumerable<T> source, Func<T, bool> predicate, out T model)

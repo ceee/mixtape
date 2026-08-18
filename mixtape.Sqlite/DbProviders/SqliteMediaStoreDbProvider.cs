@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Fisher.Linq;
 using Mixtape.Media;
 using Mixtape.Models;
 
@@ -15,7 +16,7 @@ public class SqliteMediaStoreDbProvider(IDbOperations ops) : IMixtapeMediaStoreD
 
   public Task<T> Find<T>(Expression<Func<T, bool>> expression, CancellationToken ct = default) 
     where T : MixtapeEntity, new() =>
-    Ops.Find(expression);
+    Ops.Session.Query<T>().FirstOrDefaultAsync(expression, ct);
   
 
   public async Task<IList<T>> FindAll<T>(Expression<Func<T, bool>> expression, CancellationToken ct = default) 

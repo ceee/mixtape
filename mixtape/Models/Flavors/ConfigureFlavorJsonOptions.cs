@@ -4,17 +4,10 @@ using Microsoft.Extensions.Options;
 namespace Mixtape.Models;
 
 
-public class ConfigureFlavorJsonOptions : IConfigureOptions<JsonOptions>
+public class ConfigureFlavorJsonOptions(IMixtapeOptions mixtapeOptions) : IConfigureOptions<JsonOptions>
 {
-  private readonly IMixtapeOptions _mixtapeOptions;
-
-  public ConfigureFlavorJsonOptions(IMixtapeOptions options)
-  {
-    _mixtapeOptions = options;
-  }
-
   public void Configure(JsonOptions options)
   {
-    options.JsonSerializerOptions.Converters.Add(new JsonFlavorVariantConverterFactory(_mixtapeOptions));
+    options.JsonSerializerOptions.Converters.Add(new JsonFlavorVariantConverterFactory(mixtapeOptions));
   }
 }
