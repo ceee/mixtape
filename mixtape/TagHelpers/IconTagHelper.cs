@@ -58,6 +58,7 @@ public class IconTagHelper : TagHelper
     string[] classes = new[] { set.CssClass.HasValue() ? set.CssClass : _options.CssClass, Class }.Where(x => x.HasValue()).Distinct().ToArray();
 
     output.TagName = "svg";
+    output.TagMode = TagMode.StartTagAndEndTag;
     output.Attributes.SetAttribute("class", string.Join(" ", classes));
     output.Attributes.SetAttribute("width", size);
     output.Attributes.SetAttribute("height", size);

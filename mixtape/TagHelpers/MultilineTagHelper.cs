@@ -11,6 +11,7 @@ public class MultilineTagHelper : TagHelper
   public override void Process(TagHelperContext context, TagHelperOutput output)
   {
     output.TagName = string.Empty;
+    output.TagMode = TagMode.StartTagAndEndTag;
     output.Content.SetHtmlContent(Text.NewLinesToBr());
   }
 }
