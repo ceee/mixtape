@@ -1,6 +1,8 @@
-﻿namespace Mixtape.Localization;
+﻿using Microsoft.Extensions.Options;
 
-public class ConfigurationLocalizer(ConfigurationLocalizationCache cache, ICultureResolver cultureResolver) : Localizer(cultureResolver)
+namespace Mixtape.Localization;
+
+public class ConfigurationLocalizer(ConfigurationLocalizationCache cache, ICultureResolver cultureResolver, IOptions<LocalizationOptions> options) : Localizer(cultureResolver, options)
 {
   protected override Translation LoadTranslation(string key)
   {

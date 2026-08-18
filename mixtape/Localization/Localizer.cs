@@ -1,21 +1,27 @@
 ﻿using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 
 namespace Mixtape.Localization;
 
 public abstract class Localizer : ILocalizer
 {
-  protected ConcurrentDictionary<string, string> Cache { get; } = new();
-
+  protected ConcurrentDictionary<string, string> Cache { get; }
+  
   protected ICultureResolver CultureResolver { get; }
 
   protected string LanguageCode { get; set; }
+  
+  protected LocalizationOptions Options { get; }
+  
 
-
-  protected Localizer(ICultureResolver cultureResolver)
+  protected Localizer(ICultureResolver cultureResolver, IOptions<LocalizationOptions> options)
   {
     CultureResolver = cultureResolver;
+    Options = options.Value;
+    Cache = new(options.Value.CaseInsensitiveKeys ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+    
     CultureResolver.Subscribe(msg => OnCultureChange(msg.Culture));
     OnCultureChange(CultureResolver.Current);
   }
@@ -84,7 +90,7 @@ public abstract class Localizer : ILocalizer
   /// <inheritdoc />
   public string Maybe(string key, Dictionary<string, string> tokens)
   {
-    if (key.IsNullOrEmpty() || !key.StartsWith("@"))
+    if (key.IsNullOrEmpty() || !key.StartsWith('@'))
     {
       string value = key;
       if (tokens != null)

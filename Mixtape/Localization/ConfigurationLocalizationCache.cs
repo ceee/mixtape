@@ -24,11 +24,14 @@ public class ConfigurationLocalizationCache : IDisposable
   
   private void Rebuild(LocalizationOptions options)
   {
-    Dictionary<string, Dictionary<string, Translation>> languages = new(options.Count);
+    Dictionary<string, Dictionary<string, Translation>> languages = new(options.Keys.Count, StringComparer.OrdinalIgnoreCase);
 
-    foreach ((string language, Dictionary<string, string> values) in options)
+    foreach ((string language, Dictionary<string, string> values) in options.Keys)
     {
-      Dictionary<string, Translation> cache = new(values.Count);
+      Dictionary<string, Translation> cache = new(
+        values.Count,
+        options.CaseInsensitiveKeys ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal
+      );
       foreach ((string key, string value) in values)
       {
         cache.Add(key, new() { Value = value });
