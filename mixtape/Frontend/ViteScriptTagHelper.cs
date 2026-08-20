@@ -41,8 +41,8 @@ public class ViteScriptTagHelper(IWebHostEnvironment env
     output.TagName = "script";
     output.TagMode = TagMode.StartTagAndEndTag;
     output.Attributes.SetAttribute("type", "module");
-    output.Attributes.SetAttribute("defer", string.Empty);
-    output.Attributes.SetAttribute("crossorigin", string.Empty);
+    output.Attributes.Add(new("async"));
+    output.Attributes.Add(new("crossorigin"));
     output.Attributes.SetAttribute("src", fullPath);
   }
 }
