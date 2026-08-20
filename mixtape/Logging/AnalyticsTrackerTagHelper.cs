@@ -26,7 +26,7 @@ public class AnalyticsTrackerTagHelper(IOptionsMonitor<AnalyticsOptions> options
 
     output.TagName = "script";
     output.TagMode = TagMode.StartTagAndEndTag;
-    output.Attributes.SetAttribute("defer", "true");
+    output.Attributes.Add(new("async"));
     output.Attributes.SetAttribute("src", _options.Endpoint + "/friend.js");
     // the website is injected into the script
     //output.Attributes.SetAttribute("data-website-id", _options.TrackingId);
