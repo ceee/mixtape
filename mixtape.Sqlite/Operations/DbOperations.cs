@@ -82,7 +82,7 @@ public partial class DbOperations : IDbOperations
     // update name alias and last modified
     mixtapeModel.Alias = Safenames.Alias(mixtapeModel.Name);
     mixtapeModel.LastModifiedDate = DateTimeOffset.Now;
-    mixtapeModel.Hash ??= IdGenerator.Create();
+    mixtapeModel.Hash ??= Hashimoto.Sha1()[..12];
 
     return model;
   }

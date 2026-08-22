@@ -46,7 +46,7 @@ public class RavenDocumentConventionsBuilder : IRavenDocumentConventionsBuilder
     StringBuilder documentId = new();
     documentId.Append(conventions.TransformTypeCollectionNameToDocumentIdPrefix(collection));
     documentId.Append(IdentityPartsSeparator);
-    documentId.Append(IdGenerator.Create());
+    documentId.Append(IdGenerator.Create(12));
 
     return Task.FromResult(documentId.ToString());
   }

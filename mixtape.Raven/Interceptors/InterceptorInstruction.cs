@@ -84,7 +84,7 @@ public class InterceptorInstruction<T> where T : MixtapeIdEntity, new()
       Logger.LogDebug("Run interceptor {interceptor} for {type}:{operation}", interceptor.Name, ModelType, Runtype);
 
       InterceptorResult<MixtapeIdEntity> result = (await HandleBefore(interceptor, parameters)) ?? new();
-      result.InterceptorHash = IdGenerator.Create(32);
+      result.InterceptorHash = Hashimoto.Sha1();
 
       InterceptorCache.Add(interceptor, parameters);
 

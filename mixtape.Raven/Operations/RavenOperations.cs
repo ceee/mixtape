@@ -78,7 +78,7 @@ public partial class RavenOperations : IRavenOperations
       mixtapeModel.LastModifiedById = userId;
       mixtapeModel.LastModifiedDate = DateTimeOffset.Now;
       mixtapeModel.CreatedById ??= userId;
-      mixtapeModel.Hash ??= IdGenerator.Create();
+      mixtapeModel.Hash ??= Hashimoto.Sha1()[..12];
     }
 
     return model;

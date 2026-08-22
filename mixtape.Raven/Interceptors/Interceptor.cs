@@ -87,7 +87,7 @@ public abstract partial class Interceptor : IInterceptor
   public Interceptor()
   {
     Gravity = 0;
-    Hash = IdGenerator.Create();
+    Hash = Hashimoto.Sha1();
   }
 
 
