@@ -188,6 +188,6 @@ public partial class RavenOperations : IRavenOperations
   public virtual string GetChangeToken<T>(T model) where T : MixtapeIdEntity, new()
   {
     string changeVector = Session.Advanced.GetChangeVectorFor(model);
-    return IdGenerator.HashString(changeVector);
+    return Hashimoto.Sha1(changeVector);
   }
 }

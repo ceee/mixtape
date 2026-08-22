@@ -4,11 +4,11 @@ namespace Mixtape.Utils;
 
 public class IdGenerator
 {
-  const string CHARS_az09 = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const string CHARS_azAZ09x = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-@#.:!?*";
-  const string CHARS_x09 = "0123456789";
+  const string CharsAz09 = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const string CharsAzAz09X = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-@#.:!?*";
+  const string CharsX09 = "0123456789";
 
-  private static Random random = new();
+  private static readonly Random Random = new();
 
   /// <summary>
   /// Create a new unique Id
@@ -20,9 +20,9 @@ public class IdGenerator
       length = 12;
     }
 
-    string chars = charset == Charset.az09 ? CHARS_az09 : charset == Charset.x09 ? CHARS_x09 : CHARS_azAZ09x;
+    string chars = charset == Charset.az09 ? CharsAz09 : charset == Charset.x09 ? CharsX09 : CharsAzAz09X;
 
-    return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+    return new(Enumerable.Repeat(chars, length).Select(s => s[Random.Next(s.Length)]).ToArray());
 
     //if (length > 0)
     //{
@@ -41,6 +41,7 @@ public class IdGenerator
   /// <summary>
   /// Creates a simple hash from a string
   /// </summary>
+  [Obsolete("Use Hashimoto instead")]
   public static string HashString(string value)
   {
     return GetStableHashCode(value).ToString().Replace("-", string.Empty);
@@ -50,6 +51,7 @@ public class IdGenerator
   /// <summary>
   /// Creates a simple hash from a string
   /// </summary>
+  [Obsolete("Use Hashimoto instead")]
   public static string HashObject(params object[] values)
   {
     return GetStableHashCode(JsonSerializer.Serialize(values)).ToString().Replace("-", string.Empty);
