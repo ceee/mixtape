@@ -23,7 +23,7 @@ public partial class DbOperations : IDbOperations
 
   protected IServiceProvider Services { get; }
 
-  protected IDbConnection Db { get; }
+  public IDbConnection Db { get; }
 
   protected ILogger<IDbOperations> Logger { get; }
 
@@ -113,6 +113,8 @@ public partial class DbOperations : IDbOperations
 
 public interface IDbOperations
 {
+  IDbConnection Db { get; }
+  
   /// <summary>
   /// Create a table if not existing
   /// </summary>
