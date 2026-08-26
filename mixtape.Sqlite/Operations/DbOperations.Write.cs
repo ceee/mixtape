@@ -28,6 +28,8 @@ public partial class DbOperations : IDbOperations
   /// <inheritdoc />
   protected virtual async Task<Result<T>> Save<T>(T model, Func<T, Task<ValidationResult>> validate = null, bool update = false) where T : MixtapeIdEntity, new()
   {
+    LogLevel logLevel = GetLogLevel(model);
+    
     if (model == null)
     {
       Logger.LogWarning("Could not create/update entity (model is null) for type {type}", typeof(T));
@@ -69,7 +71,7 @@ public partial class DbOperations : IDbOperations
 
       if (!validation.IsValid)
       {
-        Logger.LogInformation("Validation failed for {id} ({errors})", model.Id, validation.Errors);
+        Logger.Log(logLevel, "Validation failed for {id} ({errors})", model.Id, validation.Errors);
         return Result<T>.Fail(validation);
       }
     }
@@ -86,11 +88,11 @@ public partial class DbOperations : IDbOperations
     string action = update ? "Updated" : "Created";
     if (model is MixtapeEntity mixtapeEntity)
     {
-      Logger.LogInformation(action + " {id} with name {name}", model.Id, mixtapeEntity.Name);
+      Logger.Log(logLevel, action + " {id} with name {name}", model.Id, mixtapeEntity.Name);
     }
     else
     {
-      Logger.LogInformation(action + " {id}", model.Id);
+      Logger.Log(logLevel, action + " {id}", model.Id);
     }
 
     await EntityModifiedHandler.Saved(model, update);

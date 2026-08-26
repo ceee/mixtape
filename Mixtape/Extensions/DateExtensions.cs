@@ -41,4 +41,15 @@ public static class DateExtensions
 
     return dateTime == DateTime.MinValue ? MinDateTimeUtc : dateTime.ToUniversalTime();
   }
+  
+  
+  extension (DateTimeOffset dateTimeOffset)
+  {
+    public DateOnly DateOnly => DateOnly.FromDateTime(dateTimeOffset.DateTime);
+  }
+  
+  extension (DateTime dateTime)
+  {
+    public DateOnly DateOnly => DateOnly.FromDateTime(dateTime);
+  }
 }

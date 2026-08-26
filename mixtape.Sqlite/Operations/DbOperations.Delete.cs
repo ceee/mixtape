@@ -23,6 +23,8 @@ public partial class DbOperations : IDbOperations
       Logger.LogWarning("Could not delete entity (model is null) for type {type}", typeof(T));
       return Result<T>.Fail("@errors.ondelete.idnotfound");
     }
+    
+    LogLevel logLevel = GetLogLevel(model);
 
     if (model is ISupportsSoftDelete softDeleteModel)
     {
@@ -33,7 +35,7 @@ public partial class DbOperations : IDbOperations
       await Db.DeleteByIdAsync<T>(model.Id);
     }
 
-    Logger.LogInformation("{id} ({type}) successfully deleted", typeof(T), model.Id);
+    Logger.Log(logLevel, "{id} ({type}) successfully deleted", typeof(T), model.Id);
     await EntityModifiedHandler.Deleted(model);
 
     return Result<T>.Success();

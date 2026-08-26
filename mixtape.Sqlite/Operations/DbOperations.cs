@@ -4,6 +4,7 @@ using System.Data;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ServiceStack.OrmLite;
@@ -107,6 +108,16 @@ public partial class DbOperations : IDbOperations
   {
     return model; // TODO should we really use this? I tried to get data in a custom backend but couldn't because of this
     //return model != null && (model is not MixtapeEntity || (model as MixtapeEntity).IsActive) && (model is not ISupportsSoftDelete || !(model as ISupportsSoftDelete).IsDeleted) ? model : default;
+  }
+  
+  /// <summary>
+  /// Get log level for an entity when modifying data in db.
+  /// Defaults to LogLevel.Information
+  /// </summary>
+  protected virtual LogLevel GetLogLevel<T>(T model = null) where T : MixtapeIdEntity, new()
+  {
+    SqliteLoggingAttribute attribute = typeof(T).GetCustomAttribute<SqliteLoggingAttribute>(true);
+    return attribute?.LogLevel ?? LogLevel.Information;
   }
 }
 
