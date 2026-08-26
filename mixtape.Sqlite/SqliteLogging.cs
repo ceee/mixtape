@@ -9,5 +9,5 @@ namespace Mixtape.Sqlite;
 [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class, AllowMultiple = false)]
 public class SqliteLoggingAttribute(LogLevel logLevel) : Attribute
 {
-  public LogLevel LogLevel { get; set; }
+  public LogLevel LogLevel { get; set; } = logLevel;
 }
