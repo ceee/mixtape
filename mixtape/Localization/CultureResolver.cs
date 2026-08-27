@@ -10,6 +10,9 @@ public class CultureResolver : ICultureResolver
 {
   /// <inheritdoc />
   public CultureInfo Current { get; protected set; }
+  
+  /// <inheritdoc />
+  public string CurrentLanguageCode { get; protected set; }
 
   protected ILogger<CultureResolver> Logger { get; }
 
@@ -83,10 +86,14 @@ public class CultureResolver : ICultureResolver
     CultureInfo.CurrentCulture = culture;
     CultureInfo.CurrentUICulture = culture;
     ValidatorOptions.Global.LanguageManager.Culture = culture;
+    
     Current = culture;
+    CurrentLanguageCode = culture.Name.Split(['_', '-'])[0];
+    
     MessageAggregator.Publish(new CultureChangeMessage()
     {
-      Culture = culture
+      Culture = culture,
+      LanguageCode = CurrentLanguageCode
     });
   }
 
@@ -105,6 +112,11 @@ public interface ICultureResolver
   /// Current culture
   /// </summary>
   CultureInfo Current { get; }
+  
+  /// <summary>
+  /// 2-letter ISO language code
+  /// </summary>
+  string CurrentLanguageCode { get; }
 
   /// <summary>
   /// Resolves the current application from either the backoffice user (in case it is backoffice request)

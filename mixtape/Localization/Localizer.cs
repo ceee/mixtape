@@ -22,15 +22,14 @@ public abstract class Localizer : ILocalizer
     Options = options.Value;
     Cache = new(options.Value.CaseInsensitiveKeys ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
     
-    CultureResolver.Subscribe(msg => OnCultureChange(msg.Culture));
-    OnCultureChange(CultureResolver.Current);
+    CultureResolver.Subscribe(msg => OnCultureChange(msg.LanguageCode));
+    OnCultureChange(CultureResolver.CurrentLanguageCode);
   }
 
 
-  Task OnCultureChange(CultureInfo culture)
+  Task OnCultureChange(string languageCode)
   {
-    culture ??= CultureInfo.InvariantCulture;
-    LanguageCode = culture.Name.Split(['_', '-'])[0];
+    LanguageCode = languageCode;
     Cache.Clear();
     return Task.CompletedTask;
   }
