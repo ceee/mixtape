@@ -32,7 +32,6 @@ public class CultureResolver : ICultureResolver
       if (options.Language != _currentLocaleCode)
       {
         Resolve(options.Language);
-        Logger.LogInformation("Culture changed to: {culture}", Current);
       }
     });
   }
@@ -49,6 +48,9 @@ public class CultureResolver : ICultureResolver
     }
 
     Set(culture);
+    
+    Logger.LogTrace("Culture resolved: {culture}", Current);
+    
     return culture;
   }
 
@@ -85,6 +87,8 @@ public class CultureResolver : ICultureResolver
   {
     CultureInfo.CurrentCulture = culture;
     CultureInfo.CurrentUICulture = culture;
+    CultureInfo.DefaultThreadCurrentCulture = culture;
+    CultureInfo.DefaultThreadCurrentUICulture = culture;
     ValidatorOptions.Global.LanguageManager.Culture = culture;
     
     Current = culture;

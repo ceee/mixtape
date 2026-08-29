@@ -13,6 +13,8 @@ public static class ApplicationBuilderExtensions
     
     app.UseMiddleware<MixtapeContextMiddleware>();
 
+    MixtapeBuilder.Modules.Configure(app, app as IEndpointRouteBuilder, app.ApplicationServices);
+    
     if (!env.IsDevelopment())
     {
       app.UseResponseCaching();
@@ -25,7 +27,6 @@ public static class ApplicationBuilderExtensions
       webApplication.MapControllers();
     }
 
-    MixtapeBuilder.Modules.Configure(app, app as IEndpointRouteBuilder, app.ApplicationServices);
     return app;
   }
 }
