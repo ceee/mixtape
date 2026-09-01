@@ -76,6 +76,7 @@ public class AnalyticsController : MixtapeController
     catch (Exception ex)
     {
       Logger.LogError(ex, "Failed to load umami script");
+      return new StatusCodeResult(500);
     }
 
     return NotFound();
@@ -102,10 +103,10 @@ public class AnalyticsController : MixtapeController
     // append additional headers from client
     foreach (KeyValuePair<string, StringValues> header in Request.Headers)
     {
-      if (!proxyRequest.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
+      if (!proxyRequest.Headers.TryAddWithoutValidation(header.Key, [.. header.Value]))
       {
         proxyRequest.Content ??= new StreamContent(Request.Body);
-        proxyRequest.Content.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+        proxyRequest.Content.Headers.TryAddWithoutValidation(header.Key, [.. header.Value]);
       }
     }
     proxyRequest.Content ??= new StreamContent(Request.Body);
@@ -131,6 +132,7 @@ public class AnalyticsController : MixtapeController
     catch (Exception ex)
     {
       Logger.LogError(ex, "Failed to contact umami service");
+      return new StatusCodeResult(500);
     }
 
     return NotFound();

@@ -10,15 +10,11 @@ namespace Mixtape.TagHelpers;
 [HtmlTargetElement("app-tracker", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class AnalyticsTrackerTagHelper(IOptionsMonitor<AnalyticsOptions> options, IHostEnvironment env) : TagHelper
 {
-  [HtmlAttributeNotBound]
-  [ViewContext]
-  public ViewContext ViewContext { get; set; } = null!;
-
   private readonly AnalyticsOptions _options = options.CurrentValue;
 
   public override void Process(TagHelperContext context, TagHelperOutput output)
   {
-    if (!_options.Valid() || !env.IsProduction())
+    if (!_options.Valid() || (!env.IsProduction() && !_options.AllowInDevelopment))
     {
       output.SuppressOutput();
       return;
@@ -26,7 +22,7 @@ public class AnalyticsTrackerTagHelper(IOptionsMonitor<AnalyticsOptions> options
 
     output.TagName = "script";
     output.TagMode = TagMode.StartTagAndEndTag;
-    output.Attributes.Add(new("async"));
+    output.Attributes.Add(new("defer"));
     output.Attributes.SetAttribute("src", _options.Endpoint + "/friend.js");
     // the website is injected into the script
     //output.Attributes.SetAttribute("data-website-id", _options.TrackingId);

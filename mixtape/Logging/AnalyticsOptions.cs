@@ -2,15 +2,35 @@
 
 public class AnalyticsOptions
 {
+  /// <summary>
+  /// Whether analytics is enabled
+  /// </summary>
   public bool Enabled { get; set; } = true;
 
+  /// <summary>
+  /// The base endpoint
+  /// </summary>
   public string Endpoint { get; set; } = "/api/hello";
 
+  /// <summary>
+  /// The URL of the proxy server
+  /// </summary>
   public string ProxyUrl { get; set; }
 
+  /// <summary>
+  /// The endpoint to load the script from
+  /// </summary>
   public string ProxyScriptEndpoint { get; set; } = "/hi.js";
 
+  /// <summary>
+  /// The endpoint to track pageviews/events
+  /// </summary>
   public string ProxyTrackEndpoint { get; set; } = "/ping";
+  
+  /// <summary>
+  /// Whether to allow tracking in development mode
+  /// </summary>
+  public bool AllowInDevelopment { get; set; } = false;
 
   /// <summary>
   /// Website ID configured in Umami
