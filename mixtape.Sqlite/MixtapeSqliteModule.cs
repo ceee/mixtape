@@ -30,7 +30,7 @@ internal class MixtapeSqliteModule : MixtapeModule
   public override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
   {
     services.AddSingleton<IDbConnectionFactory>(CreateDbConnectionFactory);
-    services.AddScoped<IDbConnection>(CreateDbConnection);
+    services.AddSingleton<IDbConnection>(CreateDbConnection);
     services.AddScoped<IDbOperations, DbOperations>();
     services.AddScoped<StoreContext>();
     services.AddScoped<IEntityModifiedHandler, EmptyEntityModifiedHandler>();

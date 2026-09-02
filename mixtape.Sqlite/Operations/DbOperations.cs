@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ServiceStack.OrmLite;
 using Mixtape.Communication;
 using Mixtape.Context;
@@ -16,30 +17,25 @@ using Mixtape.Validation;
 
 namespace Mixtape.Sqlite;
 
-public partial class DbOperations : IDbOperations
+public partial class DbOperations(
+  StoreContext context,
+  IDbConnection db,
+  ILogger<IDbOperations> logger,
+  IHandlerHolder handler,
+  IOptions<FlavorOptions> flavorOptions)
+  : IDbOperations
 {
-  protected IMixtapeContext Context { get; private set; }
+  protected IMixtapeContext Context { get; private set; } = context.Context;
 
-  protected FlavorOptions Flavors { get; }
+  protected FlavorOptions Flavors { get; } = flavorOptions.Value;
 
-  protected IServiceProvider Services { get; }
+  protected IServiceProvider Services { get; } = context.Services;
 
-  public IDbConnection Db { get; }
+  public IDbConnection Db { get; } = db;
 
-  protected ILogger<IDbOperations> Logger { get; }
+  protected ILogger<IDbOperations> Logger { get; } = logger;
 
-  protected IEntityModifiedHandler EntityModifiedHandler { get; }
-
-  
-  public DbOperations(StoreContext context, IDbConnection db, ILogger<IDbOperations> logger, IHandlerHolder handler)
-  {
-    Context = context.Context;
-    Services = context.Services;
-    Flavors = context.Options.For<FlavorOptions>();
-    Db = db;
-    Logger = logger;
-    EntityModifiedHandler = handler.Get<IEntityModifiedHandler>();
-  }
+  protected IEntityModifiedHandler EntityModifiedHandler { get; } = handler.Get<IEntityModifiedHandler>();
 
 
   /// <inheritdoc />

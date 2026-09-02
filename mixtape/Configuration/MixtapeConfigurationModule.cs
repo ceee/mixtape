@@ -18,6 +18,6 @@ internal class MixtapeConfigurationModule : MixtapeModule
       opts.DataProtectionStoragePath = "../cache/dpkeys";
     }).Bind(configuration.GetSection("Mixtape"));
 
-    services.AddTransient<IMixtapeOptions, MixtapeOptions>(factory => factory.GetService<IOptions<MixtapeOptions>>().Value);
+    services.AddSingleton<IMixtapeOptions, MixtapeOptions>(factory => factory.GetService<IOptions<MixtapeOptions>>().Value);
   }
 }

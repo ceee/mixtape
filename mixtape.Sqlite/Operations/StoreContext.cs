@@ -5,22 +5,13 @@ using Mixtape.Context;
 
 namespace Mixtape.Sqlite;
 
-public class StoreContext
+public class StoreContext(IMixtapeContext context, IServiceProvider serviceProvider, IMessageAggregator messages)
 {
-  public IMixtapeContext Context { get; private set; }
+  public IMixtapeContext Context { get; private set; } = context;
 
-  public IMixtapeOptions Options { get; private set; }
+  public IMixtapeOptions Options { get; private set; } = context.Options;
 
-  public IServiceProvider Services { get; private set; }
+  public IServiceProvider Services { get; private set; } = serviceProvider;
 
-  public IMessageAggregator Messages { get; private set; }
-
-
-  public StoreContext(IMixtapeContext context, IServiceProvider serviceProvider, IMessageAggregator messages)
-  {
-    Options = context.Options;
-    Context = context;
-    Services = serviceProvider;
-    Messages = messages;
-  }
+  public IMessageAggregator Messages { get; private set; } = messages;
 }
