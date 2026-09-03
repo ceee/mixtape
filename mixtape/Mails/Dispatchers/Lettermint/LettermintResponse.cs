@@ -46,6 +46,7 @@ public class LettermintResponse
     public DateTimeOffset UpdatedDate { get; set; }
   }
 
+  [JsonConverter(typeof(JsonStringEnumConverter))]
   public enum SuppressionType
   {
     Email,
@@ -53,6 +54,7 @@ public class LettermintResponse
     Extension
   }
 
+  [JsonConverter(typeof(JsonStringEnumConverter))]
   public enum SuppressionScope
   {
     Global,
