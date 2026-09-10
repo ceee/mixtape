@@ -228,4 +228,9 @@ public interface IDbOperations
   /// Deletes an entity
   /// </summary>
   Task<Result<T>> Delete<T>(string id) where T : MixtapeIdEntity, new();
+
+  /// <summary>
+  /// Deletes all entities in a table
+  /// </summary>
+  Task<int> Purge<T>() where T : MixtapeIdEntity, new();
 }

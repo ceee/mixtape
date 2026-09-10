@@ -40,4 +40,11 @@ public partial class DbOperations : IDbOperations
 
     return Result<T>.Success();
   }
+
+
+  /// <inheritdoc />
+  public virtual async Task<int> Purge<T>() where T : MixtapeIdEntity, new()
+  {
+    return await Db.DeleteAllAsync<T>();
+  }
 }
