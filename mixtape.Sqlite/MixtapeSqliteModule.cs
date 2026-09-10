@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Data;
+using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using Mixtape.Configuration;
@@ -11,7 +15,10 @@ using Mixtape.Media;
 using Mixtape.Models;
 using Mixtape.Modules;
 using Mixtape.Numbers;
+using Mixtape.Sqlite.Migrations;
 using Mixtape.Tokens;
+using ServiceStack;
+using ServiceStack.Logging;
 using ServiceStack.OrmLite.Sqlite;
 
 namespace Mixtape.Sqlite;
@@ -29,8 +36,9 @@ internal class MixtapeSqliteModule : MixtapeModule
 {
   public override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
   {
+    //services.AddOrmLite(options => options.UseSqlite(connectionString));
+    
     services.AddSingleton<IDbConnectionFactory>(CreateDbConnectionFactory);
-    services.AddSingleton<IDbConnection>(CreateDbConnection);
     services.AddScoped<IDbOperations, DbOperations>();
     services.AddScoped<StoreContext>();
     services.AddScoped<IEntityModifiedHandler, EmptyEntityModifiedHandler>();
@@ -44,11 +52,18 @@ internal class MixtapeSqliteModule : MixtapeModule
     services.Replace<IMixtapeTokenStoreDbProvider, SqliteTokenStoreDbProvider>(ServiceLifetime.Scoped);
   }
 
+  public override void Configure(IApplicationBuilder app, IEndpointRouteBuilder routes, IServiceProvider serviceProvider)
+  {
+    RunMigrations(serviceProvider);
+  }
+
 
   protected IDbConnectionFactory CreateDbConnectionFactory(IServiceProvider services)
   {
     IMixtapeOptions options = services.GetService<IMixtapeOptions>();
     SqliteOptions sqliteOptions = options.For<SqliteOptions>();
+    
+    LogManager.LogFactory = new NetCoreLogFactory(services.GetService<ILoggerFactory>());
     
     SqliteOrmLiteDialectProviderBase dialect = SqliteDialect.Create();
     //dialect.UseJson = true;
@@ -63,22 +78,20 @@ internal class MixtapeSqliteModule : MixtapeModule
   }
 
 
-  protected IDbConnection CreateDbConnection(IServiceProvider services)
+  /// <summary>
+  /// Run migrations from entry assembly
+  /// </summary>
+  protected void RunMigrations(IServiceProvider services)
   {
     IDbConnectionFactory factory = services.GetService<IDbConnectionFactory>();
-    IMixtapeOptions options = services.GetService<IMixtapeOptions>();
-    SqliteOptions sqliteOptions = options.For<SqliteOptions>();
-    IDbConnection db = factory.CreateDbConnection();
-    db.Open();
+    Assembly assembly = Assembly.GetEntryAssembly();
 
-    // auto create tables
-    foreach (Type type in sqliteOptions.RegisteredTables)
+    if (assembly == null)
     {
-      db.CreateTableIfNotExists(type);
+      return;
     }
-    
-    sqliteOptions.OnConnectionCreate?.Invoke(db);
-    
-    return db;
+
+    MixtapeSqliteMigrator migrator = new(factory, LogManager.LogFactory, assembly);
+    migrator.Run();
   }
 }

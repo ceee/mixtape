@@ -14,16 +14,17 @@ using Mixtape.Context;
 using Mixtape.Models;
 using Mixtape.Utils;
 using Mixtape.Validation;
+using ServiceStack.Data;
 
 namespace Mixtape.Sqlite;
 
 public partial class DbOperations(
   StoreContext context,
-  IDbConnection db,
+  IDbConnectionFactory dbFactory,
   ILogger<IDbOperations> logger,
   IHandlerHolder handler,
   IOptions<FlavorOptions> flavorOptions)
-  : IDbOperations
+  : IDbOperations, IDisposable
 {
   protected IMixtapeContext Context { get; private set; } = context.Context;
 
@@ -31,7 +32,7 @@ public partial class DbOperations(
 
   protected IServiceProvider Services { get; } = context.Services;
 
-  public IDbConnection Db { get; } = db;
+  public IDbConnection Db { get; } = dbFactory.Open().WithTag("signals.dbops");
 
   protected ILogger<IDbOperations> Logger { get; } = logger;
 
@@ -114,6 +115,11 @@ public partial class DbOperations(
   {
     SqliteLoggingAttribute attribute = typeof(T).GetCustomAttribute<SqliteLoggingAttribute>(true);
     return attribute?.LogLevel ?? LogLevel.Information;
+  }
+
+  public void Dispose()
+  {
+    Db?.Dispose();
   }
 }
 
