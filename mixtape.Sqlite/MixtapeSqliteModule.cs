@@ -39,7 +39,8 @@ internal class MixtapeSqliteModule : MixtapeModule
     //services.AddOrmLite(options => options.UseSqlite(connectionString));
     
     services.AddSingleton<IDbConnectionFactory>(CreateDbConnectionFactory);
-    services.AddSingleton<IDbConnection>(provider => provider.GetService<IDbConnectionFactory>().Open());
+    services.AddScoped<IDbConnection>(provider => provider.GetService<IDbConnectionFactory>().Open());
+    services.AddKeyedTransient<IDbConnection>("transient-db", (provider, _) => provider.GetService<IDbConnectionFactory>().Open());
     services.AddScoped<IDbOperations, DbOperations>();
     services.AddScoped<StoreContext>();
     services.AddScoped<IEntityModifiedHandler, EmptyEntityModifiedHandler>();
