@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -40,7 +41,7 @@ internal class MixtapeSqliteModule : MixtapeModule
     
     services.AddSingleton<IDbConnectionFactory>(CreateDbConnectionFactory);
     services.AddSingleton<IDbConnection>(provider => provider.GetService<IDbConnectionFactory>().Open());
-    services.AddKeyedTransient<IDbConnection>("transient-db", (provider, _) => provider.GetService<IDbConnectionFactory>().Open());
+    //services.AddKeyedTransient<IDbConnection>("transient-db", (provider, _) => provider.GetService<IDbConnectionFactory>().Open());
     services.AddScoped<IDbOperations, DbOperations>();
     services.AddScoped<StoreContext>();
     services.AddScoped<IEntityModifiedHandler, EmptyEntityModifiedHandler>();
@@ -93,6 +94,17 @@ internal class MixtapeSqliteModule : MixtapeModule
       return;
     }
 
+    // auto-create all registered tables
+    using (IDbConnection db = factory.Open())
+    {
+      Type[] tables = [.. assembly.GetTypes().Where(type => type.IsClass && type.GetCustomAttribute<SqliteTableAttribute>() != null)];
+      foreach (Type table in tables)
+      {
+        db.CreateTableIfNotExists(table);
+      }
+    }
+
+    // run user-created migrations
     MixtapeSqliteMigrator migrator = new(factory, LogManager.LogFactory, assembly);
     migrator.Run();
   }
