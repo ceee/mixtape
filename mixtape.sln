@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mixtape.Raven", "Mixtape.Ra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixtape.Sqlite", "Mixtape.Sqlite\Mixtape.Sqlite.csproj", "{A57D88BC-952F-4311-B474-26FBF0FA957E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mixtape.Sqlite.Fisher", "Mixtape.Sqlite.Fisher\mixtape.Sqlite.Fisher.csproj", "{E4ADCA6A-4EF2-42BD-BF1C-4D9A76B8C5D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A57D88BC-952F-4311-B474-26FBF0FA957E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A57D88BC-952F-4311-B474-26FBF0FA957E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A57D88BC-952F-4311-B474-26FBF0FA957E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4ADCA6A-4EF2-42BD-BF1C-4D9A76B8C5D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4ADCA6A-4EF2-42BD-BF1C-4D9A76B8C5D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4ADCA6A-4EF2-42BD-BF1C-4D9A76B8C5D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4ADCA6A-4EF2-42BD-BF1C-4D9A76B8C5D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>Mixtape.Sqlite.Fisher</PackageId>
+        <Version>1.0.0</Version>
+        <TargetFramework>net10.0</TargetFramework>
+        <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+        <AssemblyName>Mixtape.Sqlite.Fisher</AssemblyName>
+        <RootNamespace>Mixtape.Sqlite</RootNamespace>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Fisher" Version="0.9.2" />
+        <PackageReference Include="FluentValidation" Version="12.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Mixtape\Mixtape.csproj" />
+    </ItemGroup>
+
+</Project>
