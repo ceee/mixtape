@@ -44,6 +44,7 @@ public class CaptchaTagHelper(IOptionsMonitor<CaptchaOptions> options) : TagHelp
     output.Attributes.SetAttribute("class", "cap-widget");
     output.Attributes.SetAttribute("data-cap-api-endpoint", _options.Endpoint);
     output.Attributes.SetAttribute("data-cap-hidden-field-name", fieldName);
+    output.Attributes.SetAttribute("data-cap-lang", Lang);
 
     string wasmFilePath =_options.Endpoint + "/cap.wasm";
     string widgetFilePath =_options.Endpoint + "/cap.widget.js";
