@@ -26,6 +26,8 @@ public class LettermintDispatcher : IMailDispatcher
 
   protected ILogger<LettermintDispatcher> Logger { get; }
 
+  protected IMailSpamChecker SpamChecker { get; }
+
 
   public LettermintDispatcher(IOptionsMonitor<MailOptions> monitor, IWebHostEnvironment env, HttpClient http, ILogger<LettermintDispatcher> logger)
   {

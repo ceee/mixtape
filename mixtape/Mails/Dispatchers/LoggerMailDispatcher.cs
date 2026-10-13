@@ -10,10 +10,9 @@ namespace Mixtape.Mails.Dispatchers;
 public class LoggerMailDispatcher(ILogger<LoggerMailDispatcher> logger) : IMailDispatcher
 {
   /// <inheritdoc />
-  public Task Send(Mail message, CancellationToken token = default)
+  public async Task Send(Mail message, CancellationToken token = default)
   {
     logger.LogInformation("Mail to {to}. Subject: {subject}", message.To[0].Address, message.Subject);
-    return Task.CompletedTask;
   }
 
 

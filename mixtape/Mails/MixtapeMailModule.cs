@@ -14,6 +14,7 @@ internal class MixtapeMailModule : MixtapeModule
     services.AddHttpClient<LettermintDispatcher>().RemoveAllLoggers();
 
     services.AddScoped<IMailProvider, MailProvider>();
+    services.AddScoped<IMailSpamChecker, MailSpamChecker>();
 
     // use logger mail dispatcher as default implementation
     // to use other dispatchers .AddMailDispatcher() should be used

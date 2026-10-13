@@ -4,7 +4,6 @@ using System.Net.Http.Json;
 using System.Net.Mail;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Attachment = System.Net.Mail.Attachment;
