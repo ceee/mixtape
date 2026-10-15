@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mixtape.Sqlite.Fisher", "Mi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixtape.Dapper", "Mixtape.Dapper\Mixtape.Dapper.csproj", "{5A22D85C-FA0D-46E7-B8A6-2C0CB07D553F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixtape.Imaging", "Mixtape.Imaging\Mixtape.Imaging.csproj", "{6734EABB-1453-44AB-B414-2329F7083572}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixtape.Imaging.Debug", "Mixtape.Imaging.Debug\Mixtape.Imaging.Debug.csproj", "{31FEDD99-A09B-43A1-9A8C-99A99F6D4F58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{5A22D85C-FA0D-46E7-B8A6-2C0CB07D553F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A22D85C-FA0D-46E7-B8A6-2C0CB07D553F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A22D85C-FA0D-46E7-B8A6-2C0CB07D553F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6734EABB-1453-44AB-B414-2329F7083572}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6734EABB-1453-44AB-B414-2329F7083572}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6734EABB-1453-44AB-B414-2329F7083572}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6734EABB-1453-44AB-B414-2329F7083572}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31FEDD99-A09B-43A1-9A8C-99A99F6D4F58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31FEDD99-A09B-43A1-9A8C-99A99F6D4F58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31FEDD99-A09B-43A1-9A8C-99A99F6D4F58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31FEDD99-A09B-43A1-9A8C-99A99F6D4F58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
